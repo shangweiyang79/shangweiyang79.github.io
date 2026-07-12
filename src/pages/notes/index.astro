@@ -1,0 +1,87 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const notes = (await getCollection('notes')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<Base
+  title="Research notes — Shangwei Yang"
+  description="Working notes on machine learning practice: evaluation, label noise, retrieval, and what the metrics tried to hide."
+>
+  <h1>Research notes</h1>
+  <p class="intro">
+    A running record of what I learn while building ML systems — kept honest by writing down the
+    mistakes as carefully as the results. Updated as the work happens.
+  </p>
+
+  <ul class="note-list">
+    {
+      notes.map((note) => (
+        <li>
+          <div class="note-row">
+            <span class="meta meta-date">{fmt(note.data.date)}</span>
+            <div>
+              <a class="note-title" href={`/notes/${note.id}/`}>
+                {note.data.title}
+              </a>
+              <p class="summary">{note.data.summary}</p>
+              <p class="meta tags">{note.data.tags.map((t) => `#${t}`).join('  ')}</p>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .intro {
+    color: var(--muted);
+    margin-bottom: 3rem;
+  }
+  .note-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: var(--measure);
+  }
+  .note-list li {
+    border-top: 1px solid var(--grid);
+    padding: 1.5rem 0;
+  }
+  .note-row {
+    display: flex;
+    gap: 1.6rem;
+    align-items: baseline;
+  }
+  .note-row > .meta {
+    flex-shrink: 0;
+  }
+  .note-title {
+    font-size: 1.25rem;
+    font-variation-settings: 'opsz' 28;
+    text-decoration: none;
+  }
+  .note-title:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--c0);
+  }
+  .summary {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 0.4rem 0 0.5rem;
+  }
+  .tags {
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 40rem) {
+    .note-row {
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+  }
+</style>

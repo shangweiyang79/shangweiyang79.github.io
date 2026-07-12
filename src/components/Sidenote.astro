@@ -1,0 +1,14 @@
+---
+// Tufte-style margin note. Sits in the right margin on wide screens;
+// collapses to a numbered, tappable inline note on small screens.
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<label class="sidenote-ref" for={`sn-${id}`} aria-label="Toggle note"></label><input
+  type="checkbox"
+  id={`sn-${id}`}
+  class="sidenote-toggle"
+/><span class="sidenote"><slot /></span>

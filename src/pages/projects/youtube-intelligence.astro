@@ -1,0 +1,100 @@
+---
+import Base from '../../layouts/Base.astro';
+import RagDiagram from '../../components/RagDiagram.astro';
+import Sidenote from '../../components/Sidenote.astro';
+---
+
+<Base
+  title="YouTube competitive intelligence — Shangwei Yang"
+  description="An end-to-end RAG system on GCP that turns weekly YouTube data from ten news channels into grounded editorial insight for the TaiwanPlus newsroom."
+>
+  <article class="prose has-margin">
+    <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
+    <h1>YouTube competitive intelligence, retrieval-augmented</h1>
+    <p class="meta">
+      Python · BigQuery · Vertex AI Search · Gemini 2.5 Flash · Streamlit · Cloud Run ·
+      <a href="https://github.com/shangweiyang79/AI_project">github repo</a>
+    </p>
+
+    <p class="lede">
+      Every week, editors at TaiwanPlus wanted to know what was working for ten competing
+      international news channels — and answering that meant someone manually scanning channel
+      pages for a day. I replaced the scan with a question box. The hard part wasn't the chat; it
+      was making sure the answers could be trusted in a newsroom.
+    </p>
+
+    <figure>
+      <RagDiagram />
+      <figcaption>
+        <span class="fig-no">Fig. 1</span>One pipeline, one command: weekly Comscore/YouTube
+        exports are cleaned, enriched with velocity metrics, loaded into BigQuery, indexed by
+        Vertex AI Search, and served through Gemini to a Streamlit chat on Cloud Run.
+      </figcaption>
+    </figure>
+
+    <h2>Velocity: finding breakouts before the totals do</h2>
+    <p>
+      Raw view counts reward old videos. The pipeline computes
+      <code>velocity_daily</code> (views per day since publish) and
+      <code>recent_velocity</code> (the short-window trend)<Sidenote id="vel">
+        A three-year-old explainer with 2M views is history; a three-day-old video pacing 80k/day
+        is intelligence. The two metrics separate exactly those cases.
+      </Sidenote> so editors see what is spiking <em>now</em>, not what accumulated. Breakout
+      detection is a sort, not a model — the leverage was defining the right metric.
+    </p>
+
+    <h2>Grounded answers or no answers</h2>
+    <p>
+      An LLM summarizing competitor strategy will happily invent a competitor. Every response
+      passes a groundedness check that traces its claims back to the retrieved source videos;
+      answers that can't be anchored don't ship.<Sidenote id="ground">
+        Two query modes serve different trust needs: the Answer API synthesizes a strategic brief
+        with citations; the Search API returns ranked, filterable raw results when editors want to
+        see the evidence themselves.
+      </Sidenote> In an editorial setting this isn't a nice-to-have — an ungrounded "insight" that
+      reaches a pitch meeting is worse than no tool at all.
+    </p>
+
+    <h2>Closing the loop: from query to slide deck</h2>
+    <p>
+      Insight that stays in a chat window dies there. A <code>python-pptx</code> module renders the
+      recurring analyses — content gaps, velocity leaders, category trends — into the branded
+      biweekly deck the newsroom already uses, so the system's output lands directly in the
+      existing editorial routine.
+    </p>
+
+    <h2>Stack</h2>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>Technology</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ingestion</td><td>Python, pandas — one-command pipeline (<code>run_pipeline.py</code>)</td></tr>
+        <tr><td>Warehouse</td><td>Google BigQuery</td></tr>
+        <tr><td>Retrieval</td><td>Vertex AI Search (synced from BigQuery via a Cloud Run service)</td></tr>
+        <tr><td>Generation</td><td>Gemini 2.5 Flash, grounded on retrieved sources</td></tr>
+        <tr><td>Interface</td><td>Streamlit chat with preset newsroom queries</td></tr>
+        <tr><td>Deployment</td><td>Cloud Run, serverless</td></tr>
+        <tr><td>Reporting</td><td>python-pptx auto-generated decks</td></tr>
+      </tbody>
+    </table>
+
+    <h2>What this project demonstrates</h2>
+    <ul>
+      <li><strong>Full ownership of an ML product</strong> — ingestion to deployment to the deck on the editor's desk, not a notebook that stops at a metric.</li>
+      <li><strong>Responsible generation</strong> — groundedness as a hard gate, with an escape hatch to raw evidence.</li>
+      <li><strong>Metric design as analysis</strong> — velocity turned a data dump into a detection system.</li>
+    </ul>
+
+    <p class="meta">
+      Code and pipeline scripts:
+      <a href="https://github.com/shangweiyang79/AI_project">shangweiyang79/AI_project</a>.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.12rem;
+  }
+</style>

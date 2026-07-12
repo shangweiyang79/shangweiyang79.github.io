@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- a tiny scatter plot -->
+  <path d="M5 3 V27 H29" fill="none" stroke="#5a6169" stroke-width="2"/>
+  <circle cx="12" cy="20" r="3.4" fill="#1f77b4"/>
+  <circle cx="19" cy="13" r="3.4" fill="#ff7f0e"/>
+  <circle cx="26" cy="7" r="3.4" fill="#1f77b4"/>
+</svg>

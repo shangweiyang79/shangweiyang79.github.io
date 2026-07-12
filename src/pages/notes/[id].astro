@@ -1,0 +1,67 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map((note) => ({
+    params: { id: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<Base title={`${note.data.title} — Shangwei Yang`} description={note.data.summary}>
+  <article class="prose has-margin">
+    <p class="eyebrow">
+      Note · {fmt(note.data.date)} · {note.data.tags.map((t) => `#${t}`).join(' ')}
+    </p>
+    <h1>{note.data.title}</h1>
+    <Content />
+    <p class="backlink"><a href="/notes/">← All notes</a></p>
+  </article>
+</Base>
+
+<script>
+  // Progressive enhancement: on wide screens, lift GFM footnotes out of the
+  // bottom .footnotes section and float them beside their reference as
+  // Tufte-style margin notes (styling in global.css, .fn-margin).
+  const wide = window.matchMedia('(min-width: 68rem)');
+  if (wide.matches) {
+    document.querySelectorAll<HTMLAnchorElement>('sup a[data-footnote-ref]').forEach((ref, i) => {
+      const href = ref.getAttribute('href');
+      if (!href) return;
+      const li = document.getElementById(decodeURIComponent(href.slice(1)));
+      if (!li) return;
+      const margin = document.createElement('span');
+      margin.className = 'fn-margin';
+      const no = document.createElement('span');
+      no.className = 'fn-no';
+      no.textContent = `${i + 1} `;
+      margin.appendChild(no);
+      const body = li.cloneNode(true) as HTMLElement;
+      body.querySelectorAll('[data-footnote-backref]').forEach((b) => b.remove());
+      margin.append(...body.childNodes);
+      ref.closest('sup')?.after(margin);
+    });
+  }
+</script>
+
+<style>
+  .backlink {
+    margin-top: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+  .backlink a {
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .backlink a:hover {
+    color: var(--ink);
+  }
+</style>

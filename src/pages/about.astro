@@ -1,0 +1,196 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import joy from '../assets/joy.jpg';
+
+const timeline = [
+  {
+    when: '2025 —',
+    what: 'Data Analyst, TaiwanPlus',
+    detail:
+      'BigQuery pipelines, ML news classification, RAG systems for the newsroom. Channel KPIs up 50%.',
+  },
+  {
+    when: '2025',
+    what: 'Data Analyst, United Daily News Group',
+    detail: 'Traffic and subscription-funnel analytics; Google Trends + AI-assisted SEO workflow.',
+  },
+  {
+    when: '2024 – 25',
+    what: 'Data engineering bootcamp, TibaMe',
+    detail: 'Capstone: consumer-preference analysis of the Taiwanese film market.',
+  },
+  {
+    when: '2018 – 24',
+    what: 'Gallery Manager, Powen Gallery',
+    detail:
+      'Ran the business of art: GA4-measured campaigns reaching 200k/month on a small budget; Instagram audience grown 40×.',
+  },
+  {
+    when: '2013 – 15',
+    what: 'M.A. Economics, National Central University',
+    detail:
+      "GPA 3.87/4.0. Thesis received an honorable mention for the Taiwan Economic Association best master's thesis award.",
+  },
+];
+
+const skills = [
+  { k: 'languages', v: 'Python · SQL' },
+  { k: 'ml / ai', v: 'PyTorch · Hugging Face Transformers · scikit-learn · RAG · agentic systems' },
+  { k: 'cloud', v: 'GCP (BigQuery, Vertex AI, Cloud Run) · AWS' },
+  { k: 'analytics', v: 'Tableau · GA4 · Looker Studio · Power BI' },
+  { k: 'tooling', v: 'Docker · Git' },
+  { k: 'spoken', v: 'Mandarin (native) · English (TOEIC 925) · Japanese (JLPT N1)' },
+];
+---
+
+<Base
+  title="About — Shangwei Yang"
+  description="Shangwei (Joy) Yang: economics-trained, gallery-tested, newsroom-proven data scientist in Taipei."
+>
+  <div class="about">
+    <div class="bio">
+      <p class="eyebrow">About</p>
+      <h1>I came to data science through an unusual door.</h1>
+      <p>
+        I trained as an economist, then spent six years running an art gallery — pricing the
+        unpriceable, and learning that whether people stop in front of a painting is an empirical
+        question. When I started measuring that (GA4, audience analytics, ad experiments on a
+        five-figure budget), the gallery's reach grew fivefold and I found the work I actually
+        wanted: making decisions answerable to evidence.
+      </p>
+      <p>
+        Today I do that at TaiwanPlus, Taiwan's international media platform, where I've built the
+        data pipeline that feeds the newsroom's dashboards, a nine-category ML news classifier, and
+        a RAG system editors query instead of spending a day scanning competitor channels. The
+        common thread with the gallery years is more direct than it looks: both jobs are about
+        noticing what people pay attention to, and being honest about why.
+      </p>
+      <p>
+        I work in Mandarin, English, and Japanese, and I write up what I learn — including the
+        mistakes — in my <a href="/notes/">research notes</a>.
+      </p>
+      <p class="contact-line">
+        <a href="mailto:shangweiyang79@gmail.com">shangweiyang79@gmail.com</a>
+        <a href="https://github.com/shangweiyang79">github.com/shangweiyang79</a>
+        <a href="https://www.linkedin.com/in/shang-wei-yang-670b9091/">linkedin</a>
+      </p>
+    </div>
+    <div class="portrait">
+      <Image src={joy} alt="Portrait of Shangwei (Joy) Yang" width="520" densities={[1, 2]} />
+      <p class="meta">Shangwei (Joy) Yang · Taipei, Taiwan</p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Timeline</h2>
+    <ol class="timeline">
+      {
+        timeline.map((t) => (
+          <li>
+            <span class="mono when">{t.when}</span>
+            <div>
+              <span class="what">{t.what}</span>
+              <p class="detail">{t.detail}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section>
+    <h2>Toolbox</h2>
+    <dl class="skills">
+      {
+        skills.map((s) => (
+          <div class="skill-row">
+            <dt class="eyebrow">{s.k}</dt>
+            <dd>{s.v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+    gap: 3.5rem;
+    align-items: start;
+  }
+  @media (max-width: 52rem) {
+    .about {
+      grid-template-columns: 1fr;
+    }
+    .portrait {
+      max-width: 20rem;
+    }
+  }
+  .bio h1 {
+    font-size: clamp(1.9rem, 4.2vw, 2.6rem);
+  }
+  .portrait img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--grid);
+  }
+  .portrait .meta {
+    margin-top: 0.6rem;
+  }
+  .contact-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    margin-top: 1.6rem;
+  }
+  .timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: var(--measure);
+  }
+  .timeline li {
+    display: flex;
+    gap: 1.6rem;
+    border-top: 1px solid var(--grid-soft);
+    padding: 0.9rem 0;
+  }
+  .when {
+    flex: 0 0 5.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding-top: 0.15rem;
+  }
+  .what {
+    font-weight: 600;
+  }
+  .detail {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0.25rem 0 0;
+  }
+  .skills {
+    max-width: var(--measure);
+    margin: 1.5rem 0 0;
+  }
+  .skill-row {
+    display: flex;
+    gap: 1.6rem;
+    border-top: 1px solid var(--grid-soft);
+    padding: 0.7rem 0;
+  }
+  .skill-row dt {
+    flex: 0 0 5.5rem;
+    padding-top: 0.2rem;
+  }
+  .skill-row dd {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+</style>

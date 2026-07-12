@@ -1,0 +1,212 @@
+---
+import Base from '../../layouts/Base.astro';
+import CascadeDiagram from '../../components/CascadeDiagram.astro';
+import Sidenote from '../../components/Sidenote.astro';
+
+// Split-comparison figure: 28 items per row, ~30% test.
+const N = 28;
+const randomTest = new Set([2, 5, 6, 11, 14, 19, 20, 25]);
+const cells = Array.from({ length: N }, (_, i) => i);
+const sq = 18;
+const gap = 6;
+const x0 = 24;
+const cellX = (i: number) => x0 + i * (sq + gap);
+
+// Accuracy dot plot: map value → x on a 0.70–0.85 axis.
+const ax = (v: number) => 240 + ((v - 0.7) / 0.15) * 440;
+const rows = [
+  { y: 45, label: 'DistilBERT · noisy labels', v: 0.731, c: 'ink' },
+  { y: 80, label: 'DistilBERT · cleaned labels', v: 0.753, c: 'c0' },
+  { y: 115, label: 'Gemini few-shot', v: 0.81, c: 'c1' },
+  { y: 150, label: 'Cascade (deployed)', v: 0.81, c: 'c0' },
+];
+const ticks = [0.7, 0.75, 0.8, 0.85];
+---
+
+<Base
+  title="News classification by confidence-gated cascade — Shangwei Yang"
+  description="Classifying TaiwanPlus news videos into nine categories: finding data leakage, cleaning labels with an LLM, and routing by confidence to halve API cost."
+>
+  <article class="prose has-margin">
+    <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
+    <h1>News classification by confidence-gated cascade</h1>
+    <p class="meta">
+      PyTorch · Hugging Face Transformers · Gemini API · scikit-learn ·
+      <a href="https://github.com/shangweiyang79/TaiwanPlus-News-Classification">github repo</a>
+    </p>
+
+    <p class="lede">
+      TaiwanPlus needed its YouTube news videos sorted into nine editorial categories<Sidenote
+        id="cats"
+      >
+        International Relations, US Relations, China Relations, Military, Politics, Social &amp;
+        Rights, Business &amp; Economy, Environment &amp; Climate, Culture &amp; Lifestyle.
+      </Sidenote> using only what every video is guaranteed to have: a title and tags. The final system
+      reads 0.81 accuracy at roughly half the API cost of a pure-LLM approach — but the numbers are
+      the least interesting part. This is a story about the three times my evaluation lied to me.
+    </p>
+
+    <h2>1 · The split was lying</h2>
+    <p>
+      My first fine-tuned DistilBERT scored 0.81 on a random train/test split. Too good. News
+      arrives in bursts — one developing story yields a week of near-duplicate titles with the same
+      label — and a random split scatters each burst across both sides. The model wasn't
+      classifying; it was recognizing siblings it had memorized.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 720 230" role="img" aria-label="Two rows of squares comparing a random split, where test items are scattered among training items, with a chronological split, where all test items come after the training items in time.">
+        <text class="d-label" x={x0} y="28">random split</text>
+        {
+          cells.map((i) =>
+            randomTest.has(i) ? (
+              <rect class="cell-test" x={cellX(i)} y="38" width={sq} height={sq} />
+            ) : (
+              <rect class="cell-train" x={cellX(i)} y="38" width={sq} height={sq} />
+            )
+          )
+        }
+        <path class="d-line-c1" d={`M ${cellX(4)} 66 L ${cellX(4)} 72 L ${cellX(6) + sq} 72 L ${cellX(6) + sq} 66`} />
+        <text class="d-label-sm" x={cellX(4)} y="88">same story, both sides of the split</text>
+
+        <text class="d-label" x={x0} y="128">chronological split</text>
+        {
+          cells.map((i) =>
+            i >= 20 ? (
+              <rect class="cell-test" x={cellX(i)} y="138" width={sq} height={sq} />
+            ) : (
+              <rect class="cell-train" x={cellX(i)} y="138" width={sq} height={sq} />
+            )
+          )
+        }
+        <path class="d-line d-dashed" d={`M ${cellX(20) - gap / 2} 132 L ${cellX(20) - gap / 2} 162`} />
+        <path class="d-line" d={`M ${x0} 176 L ${cellX(27) + sq} 176`} />
+        <path class="d-line" d={`M ${cellX(27) + sq - 6} 171 L ${cellX(27) + sq} 176 L ${cellX(27) + sq - 6} 181`} />
+        <text class="d-label-sm" x={x0} y="196">time →</text>
+        <text class="d-label-sm" x={cellX(27) + sq} y="196" text-anchor="end">train on the past · test on the future</text>
+
+        <rect class="cell-train" x="530" y="14" width="14" height="14" />
+        <text class="d-label-sm" x="550" y="26">train</text>
+        <rect class="cell-test" x="610" y="14" width="14" height="14" />
+        <text class="d-label-sm" x="630" y="26">test</text>
+      </svg>
+      <figcaption>
+        <span class="fig-no">Fig. 1</span>Random splits leak near-duplicate stories into the test
+        set. Rebuilding the splits chronologically — the shape of actual deployment — dropped
+        accuracy from 0.81 to an honest ~0.75.
+      </figcaption>
+    </figure>
+
+    <h2>2 · The labels were lying</h2>
+    <p>
+      With honest evaluation in place, tuning bought almost nothing. Reading the misclassified rows
+      did: many "errors" were the model being right and the label being wrong. The source labels
+      came from operational metadata that was never designed as training ground truth.<Sidenote
+        id="audit"
+      >
+        Audit mechanics: Gemini re-classified every training row against the same nine-category
+        schema; disagreements were flagged and re-examined, corrections fed back into training.
+      </Sidenote> An LLM-assisted label audit lifted DistilBERT from 0.731 to 0.753 — more than any
+      hyperparameter sweep.
+    </p>
+
+    <h2>3 · The benchmark was lying</h2>
+    <p>
+      Scored against the noisy source labels, Gemini few-shot looked mediocre. Scored against a
+      human-verified test set, it reached 0.81 and beat my fine-tuned model — the old benchmark had
+      been punishing it for disagreeing with wrong answers. Once the ranking was trustworthy, the
+      design question changed from <em>which model</em> to <em>which model, when</em>.
+    </p>
+
+    <figure>
+      <svg viewBox="0 0 720 210" role="img" aria-label="Dot plot of accuracy on the human-verified test set: DistilBERT with noisy labels 0.731, DistilBERT with cleaned labels 0.753, Gemini few-shot 0.81, and the deployed cascade also 0.81.">
+        {ticks.map((t) => (
+          <>
+            <path class="grid-v" d={`M ${ax(t)} 25 L ${ax(t)} 168`} />
+            <text class="d-label-sm" x={ax(t)} y="188" text-anchor="middle">{t.toFixed(2)}</text>
+          </>
+        ))}
+        {rows.map((r) => (
+          <>
+            <text class="d-label-sm" x="228" y={r.y + 4} text-anchor="end">{r.label}</text>
+            <path class="grid-h" d={`M 240 ${r.y} L ${ax(r.v)} ${r.y}`} />
+            <circle class={`dot-${r.c}`} cx={ax(r.v)} cy={r.y} r="5" />
+            <text class="d-label" x={ax(r.v) + 12} y={r.y + 4}>{r.v.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')}</text>
+          </>
+        ))}
+        <text class="d-label-sm" x="680" y="208" text-anchor="end">accuracy · human-verified test set · n = 1,179</text>
+      </svg>
+      <figcaption>
+        <span class="fig-no">Fig. 2</span>Every point on this chart is the same task; only the
+        honesty of the measurement improves left to right. The cascade matches pure-Gemini accuracy
+        while sending it only the hard 40% of traffic.
+      </figcaption>
+    </figure>
+
+    <h2>The cascade</h2>
+    <p>
+      DistilBERT is free to run; Gemini is accurate but metered. The production system lets the
+      local model keep any prediction it makes with softmax confidence ≥ 0.80 (about 60% of
+      traffic) and escalates the rest.<Sidenote id="tau">
+        τ = 0.80 was chosen on the validation set as the point where DistilBERT's accepted
+        predictions match Gemini's accuracy — below it, you pay for answers the free model already
+        gets right.
+      </Sidenote> The result matches pure-Gemini accuracy at roughly half the API cost.
+    </p>
+
+    <figure>
+      <CascadeDiagram />
+      <figcaption>
+        <span class="fig-no">Fig. 3</span>Deployed routing. Residual errors concentrate in the
+        geopolitical categories (International / US / China / Military), where the ambiguity is
+        genuine — human annotators disagree there too.
+      </figcaption>
+    </figure>
+
+    <h2>What this project demonstrates</h2>
+    <ul>
+      <li><strong>Evaluation before optimization</strong> — leakage found, split rebuilt, labels audited, then and only then tuned.</li>
+      <li><strong>Cost as a design constraint</strong> — the interesting engineering is matching top accuracy at half the price, not squeezing another half-point.</li>
+      <li><strong>LLMs as instruments, not oracles</strong> — Gemini serves as annotator, benchmark referee, and escalation tier, each with its output checked.</li>
+    </ul>
+
+    <p class="meta">
+      Code, scripts, and the training notebook:
+      <a href="https://github.com/shangweiyang79/TaiwanPlus-News-Classification">
+        shangweiyang79/TaiwanPlus-News-Classification</a
+      >. Sample data is synthetic; the production dataset is proprietary.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.12rem;
+  }
+  .cell-train {
+    fill: var(--grid-soft);
+    stroke: var(--grid);
+  }
+  .cell-test {
+    fill: none;
+    stroke: var(--c1);
+    stroke-width: 1.5;
+  }
+  .grid-v {
+    stroke: var(--grid-soft);
+    stroke-width: 1;
+  }
+  .grid-h {
+    stroke: var(--grid-soft);
+    stroke-width: 1;
+  }
+  .dot-ink {
+    fill: var(--muted);
+  }
+  .dot-c0 {
+    fill: var(--c0);
+  }
+  .dot-c1 {
+    fill: var(--c1);
+  }
+</style>

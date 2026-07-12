@@ -1,0 +1,48 @@
+---
+// Architecture of the YouTube competitive-intelligence RAG system
+// (AI_project): weekly channel data → BigQuery → Vertex AI Search →
+// Gemini, with a groundedness check tying every answer back to sources.
+---
+
+<svg
+  viewBox="0 0 880 250"
+  role="img"
+  aria-label="Pipeline diagram: weekly YouTube exports flow into BigQuery, are indexed by Vertex AI Search, synthesized by Gemini 2.5 Flash, and served to the newsroom through a chat interface. A groundedness check loops each answer back to its source videos."
+>
+  <!-- main pipeline -->
+  <path class="d-line" d="M 18 118 L 100 118" />
+  <path class="d-line" d="M 240 118 L 290 118" />
+  <path class="d-line" d="M 460 118 L 510 118" />
+  <path class="d-line d-arrow" d="M 660 118 L 712 118" />
+
+  <g>
+    <rect class="d-box" x="100" y="90" width="140" height="56" />
+    <text class="d-label" x="170" y="123" text-anchor="middle">BigQuery</text>
+    <text class="d-label-sm" x="100" y="168">cleaned · velocity metrics</text>
+  </g>
+  <g>
+    <rect class="d-box" x="290" y="90" width="170" height="56" />
+    <text class="d-label" x="375" y="123" text-anchor="middle">Vertex AI Search</text>
+    <text class="d-label-sm" x="290" y="168">semantic retrieval</text>
+  </g>
+  <g>
+    <rect class="d-box" x="510" y="90" width="150" height="56" />
+    <text class="d-label" x="585" y="123" text-anchor="middle">Gemini 2.5</text>
+    <text class="d-label-sm" x="510" y="168">strategic briefs</text>
+  </g>
+  <g>
+    <rect class="d-box" x="712" y="90" width="150" height="56" />
+    <text class="d-label" x="787" y="123" text-anchor="middle">newsroom chat</text>
+    <text class="d-label-sm" x="712" y="168">Streamlit · Cloud Run</text>
+  </g>
+
+  <!-- input -->
+  <path class="d-line" d="M 18 108 L 18 128" />
+  <text class="d-label-sm" x="18" y="72">weekly exports from</text>
+  <text class="d-label-sm" x="18" y="88">~10 news channels</text>
+
+  <!-- groundedness loop -->
+  <path class="d-line-c1 d-dashed" d="M 640 146 L 640 206 L 440 206 L 440 152" />
+  <path class="d-line-c1" d="M 435 162 L 440 152 L 445 162" />
+  <text class="d-label-c1" x="540" y="230" text-anchor="middle">groundedness check — every claim traced to a source video</text>
+</svg>

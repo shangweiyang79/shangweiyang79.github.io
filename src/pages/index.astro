@@ -1,0 +1,136 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import CascadeDiagram from '../components/CascadeDiagram.astro';
+import RagDiagram from '../components/RagDiagram.astro';
+
+const notes = (await getCollection('notes')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const recent = notes.slice(0, 3);
+
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<Base title="Shangwei Yang — Data Scientist">
+  <section class="hero">
+    <p class="eyebrow">Shangwei (Joy) Yang · data scientist · Taipei</p>
+    <h1>Machine learning that is honest about its own accuracy.</h1>
+    <p class="lede">
+      I build ML systems for a national newsroom — a news classifier that routes work by its own
+      confidence, and a RAG pipeline that must cite its sources. Eight years across media and the
+      arts taught me that the interesting question is never the headline number; it's what the
+      number is hiding.
+    </p>
+  </section>
+
+  <section class="work">
+    <figure>
+      <CascadeDiagram />
+      <ul class="readout">
+        <li><b>0.81</b><span class="k">accuracy</span></li>
+        <li><b>0.81</b><span class="k">macro-F1</span></li>
+        <li><b>0.5×</b><span class="k">API cost vs. pure Gemini</span></li>
+        <li><b>1,179</b><span class="k">human-verified test rows</span></li>
+      </ul>
+      <figcaption>
+        <span class="fig-no">Fig. 1</span>Confidence-gated cascade for classifying TaiwanPlus news
+        videos into nine categories from title and tags alone. The cheap local model handles what
+        it is sure about; only genuinely hard cases pay for the API.
+      </figcaption>
+    </figure>
+    <p class="work-note">
+      The metrics above survived a data-leakage hunt, a chronological re-split, and an
+      LLM-assisted label audit — that debugging story is the real project.
+      <a href="/projects/news-classification/">Read the full story</a> or see the
+      <a href="https://github.com/shangweiyang79/TaiwanPlus-News-Classification">code on GitHub</a>.
+    </p>
+
+    <figure>
+      <RagDiagram />
+      <ul class="readout">
+        <li><b>10</b><span class="k">channels tracked weekly</span></li>
+        <li><b>1 query</b><span class="k">replaces a day of manual scanning</span></li>
+        <li><b>every claim</b><span class="k">traced to a source video</span></li>
+      </ul>
+      <figcaption>
+        <span class="fig-no">Fig. 2</span>Competitive-intelligence RAG system for the TaiwanPlus
+        newsroom: weekly YouTube performance data becomes an editor-facing chat that answers
+        "what is working for competitors, and what are they missing?"
+      </figcaption>
+    </figure>
+    <p class="work-note">
+      End-to-end on GCP — pipeline, warehouse, retrieval, generation, deployment.
+      <a href="/projects/youtube-intelligence/">Read the architecture</a> or see the
+      <a href="https://github.com/shangweiyang79/AI_project">code on GitHub</a>.
+    </p>
+  </section>
+
+  <section class="recent">
+    <h2 id="notes">Recent notes</h2>
+    <p class="recent-sub">
+      A running record of what I learn while building — mistakes included, especially the
+      instructive ones. <a href="/notes/">All notes</a>
+    </p>
+    <ul class="note-list">
+      {
+        recent.map((note) => (
+          <li>
+            <span class="meta meta-date">{fmt(note.data.date)}</span>
+            <a href={`/notes/${note.id}/`}>{note.data.title}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    margin: 1.5rem 0 4rem;
+  }
+  .hero h1 {
+    max-width: 46rem;
+  }
+  .lede {
+    font-size: 1.18rem;
+    line-height: 1.6;
+    max-width: 40rem;
+  }
+  .work figure {
+    margin-top: 3.5rem;
+  }
+  .work-note {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.9rem;
+  }
+  .recent {
+    margin-top: 4.5rem;
+  }
+  .recent-sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .note-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    max-width: var(--measure);
+  }
+  .note-list li {
+    display: flex;
+    gap: 1.4rem;
+    align-items: baseline;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--grid-soft);
+  }
+  .note-list a {
+    text-decoration: none;
+  }
+  .note-list a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--c0);
+    text-underline-offset: 0.2em;
+  }
+</style>

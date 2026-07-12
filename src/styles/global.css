@@ -1,0 +1,482 @@
+/* ---------------------------------------------------------------
+   Design tokens — data-ink system
+   Paper & ink first; matplotlib C0/C1 as the only chromatic marks.
+   --------------------------------------------------------------- */
+:root {
+  --paper: #ffffff;
+  --ink: #1a1d1e;
+  --muted: #5a6169;
+  --grid: #d9dede;
+  --grid-soft: #edf0f0;
+  --c0: #1f77b4; /* matplotlib C0 */
+  --c1: #ff7f0e; /* matplotlib C1 */
+
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --measure: 40rem;
+  --page-max: 71rem;
+  --margin-col: 17rem;
+}
+
+:root[data-theme='dark'] {
+  --paper: #16181a;
+  --ink: #e6e4df;
+  --muted: #99a1a8;
+  --grid: #383e42;
+  --grid-soft: #24282b;
+  --c0: #5b9ec9;
+  --c1: #f2953f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #16181a;
+    --ink: #e6e4df;
+    --muted: #99a1a8;
+    --grid: #383e42;
+    --grid-soft: #24282b;
+    --c0: #5b9ec9;
+    --c1: #f2953f;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Base
+   --------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c0) 22%, transparent);
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--grid);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 120ms ease;
+}
+a:hover {
+  text-decoration-color: var(--c0);
+}
+:focus-visible {
+  outline: 2px solid var(--c0);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+h1 {
+  font-size: clamp(2.1rem, 5.4vw, 3.4rem);
+  font-variation-settings: 'opsz' 72;
+  margin: 0 0 1rem;
+}
+h2 {
+  font-size: 1.55rem;
+  font-variation-settings: 'opsz' 36;
+  margin: 2.8rem 0 0.8rem;
+}
+h3 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.5rem;
+}
+
+p,
+ul,
+ol {
+  max-width: var(--measure);
+}
+
+strong {
+  font-weight: 600;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--grid);
+  margin: 3rem 0;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--grid-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+pre {
+  background: var(--grid-soft);
+  border: 1px solid var(--grid);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  max-width: var(--measure);
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 1.5rem 0;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.45rem 1.4rem 0.45rem 0;
+  border-bottom: 1px solid var(--grid);
+  vertical-align: top;
+}
+th {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+td.num,
+th.num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: right;
+  padding-right: 0;
+  padding-left: 1.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------
+   Mono utility voice — eyebrows, metadata, captions, numbers
+   --------------------------------------------------------------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.meta-date {
+  white-space: nowrap;
+}
+
+/* Metric readouts under figures */
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.readout b {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.readout .k {
+  color: var(--muted);
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.15rem;
+}
+
+/* ---------------------------------------------------------------
+   Figures — every diagram is a numbered figure with a mono caption
+   --------------------------------------------------------------- */
+figure {
+  margin: 2.5rem 0;
+}
+figure svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* Keep diagrams legible on small screens: scroll instead of shrinking */
+@media (max-width: 40rem) {
+  figure {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  figure svg {
+    min-width: 40rem;
+  }
+}
+figcaption {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--muted);
+  border-top: 1px solid var(--grid);
+  margin-top: 0.9rem;
+  padding-top: 0.6rem;
+  max-width: var(--measure);
+}
+figcaption .fig-no {
+  color: var(--ink);
+  font-weight: 600;
+  margin-right: 0.6em;
+}
+
+/* Diagram vocabulary (shared by all SVGs) */
+.d-box {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+.d-box-soft {
+  fill: var(--grid-soft);
+  stroke: var(--grid);
+  stroke-width: 1;
+}
+.d-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+.d-line-c0 {
+  fill: none;
+  stroke: var(--c0);
+  stroke-width: 1.5;
+}
+.d-line-c1 {
+  fill: none;
+  stroke: var(--c1);
+  stroke-width: 1.5;
+}
+.d-dashed {
+  stroke-dasharray: 4 4;
+}
+.d-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--ink);
+}
+.d-label-sm {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--muted);
+}
+.d-label-c0 {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  fill: var(--c0);
+  font-weight: 600;
+}
+.d-label-c1 {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  fill: var(--c1);
+  font-weight: 600;
+}
+.d-serif {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  fill: var(--ink);
+}
+
+/* ---------------------------------------------------------------
+   Sidenotes — Tufte margin notes.
+   Wide screens: notes sit in the right margin.
+   Narrow screens: numbered, tap/click to expand inline.
+   --------------------------------------------------------------- */
+.has-margin {
+  position: relative;
+}
+
+.sidenote-ref {
+  counter-increment: sidenote;
+  cursor: pointer;
+}
+.sidenote-ref::after {
+  content: counter(sidenote);
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  vertical-align: super;
+  color: var(--c0);
+  font-weight: 600;
+  padding-left: 0.1em;
+}
+
+.sidenote {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.sidenote::before {
+  content: counter(sidenote) ' ';
+  color: var(--c0);
+  font-weight: 600;
+}
+
+article.notebody,
+.prose {
+  counter-reset: sidenote;
+}
+
+@media (min-width: 68rem) {
+  .has-margin {
+    padding-right: calc(var(--margin-col) + 3rem);
+  }
+  .sidenote {
+    float: right;
+    clear: right;
+    width: var(--margin-col);
+    margin-right: calc(-1 * (var(--margin-col) + 3rem));
+    margin-top: 0.25rem;
+    margin-bottom: 0.9rem;
+  }
+  .sidenote-toggle {
+    display: none;
+  }
+}
+
+@media (max-width: 67.99rem) {
+  .sidenote-toggle:not(:checked) + .sidenote {
+    display: none;
+  }
+  .sidenote-toggle:checked + .sidenote {
+    display: block;
+    border-left: 2px solid var(--c0);
+    padding: 0.2rem 0 0.2rem 0.8rem;
+    margin: 0.7rem 0;
+  }
+  .sidenote-toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Markdown prose (research notes)
+   --------------------------------------------------------------- */
+.prose h2 {
+  font-size: 1.4rem;
+}
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--grid);
+  color: var(--muted);
+  font-style: italic;
+  max-width: var(--measure);
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Footnotes rendered by remark — restyled; a script lifts them into
+   the margin on wide screens */
+.prose .footnotes {
+  border-top: 1px solid var(--grid);
+  margin-top: 3rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.prose .footnotes ol {
+  padding-left: 1.2rem;
+}
+.prose sup a {
+  font-family: var(--font-mono);
+  text-decoration: none;
+  color: var(--c0);
+  font-weight: 600;
+}
+.prose .data-footnote-backref {
+  font-family: var(--font-mono);
+}
+
+@media (min-width: 68rem) {
+  .prose .footnotes {
+    display: none;
+  }
+  .prose .fn-margin {
+    float: right;
+    clear: right;
+    width: var(--margin-col);
+    margin-right: calc(-1 * (var(--margin-col) + 3rem));
+    margin-top: 0.25rem;
+    margin-bottom: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .prose .fn-margin .fn-no {
+    color: var(--c0);
+    font-weight: 600;
+  }
+  .prose .fn-margin p {
+    display: inline;
+    margin: 0;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Motion discipline
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .flow-dot {
+    display: none;
+  }
+}

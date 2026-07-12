@@ -1,0 +1,173 @@
+---
+import '@fontsource-variable/newsreader';
+import '@fontsource-variable/newsreader/wght-italic.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Shangwei (Joy) Yang — data scientist working on ML classification and RAG systems. Portfolio and research notes.',
+} = Astro.props;
+
+const nav = [
+  { href: '/projects/', label: 'work' },
+  { href: '/notes/', label: 'notes' },
+  { href: '/about/', label: 'about' },
+];
+const path = Astro.url.pathname;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      // Apply saved theme before first paint to avoid a flash
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.dataset.theme = saved;
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="/">Shangwei&nbsp;Yang</a>
+      <nav>
+        {
+          nav.map((item) => (
+            <a href={item.href} aria-current={path.startsWith(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          ))
+        }
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode">◐</button>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="foot-inner">
+        <span class="meta">Shangwei (Joy) Yang · Taipei, Taiwan</span>
+        <span class="foot-links">
+          <a href="mailto:shangweiyang79@gmail.com">email</a>
+          <a href="https://github.com/shangweiyang79" rel="me">github</a>
+          <a href="https://www.linkedin.com/in/shang-wei-yang-670b9091/" rel="me">linkedin</a>
+        </span>
+      </div>
+    </footer>
+
+    <script>
+      const btn = document.getElementById('theme-toggle');
+      btn?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const current = root.dataset.theme ?? (prefersDark ? 'dark' : 'light');
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        localStorage.setItem('theme', next);
+      });
+    </script>
+
+    <style>
+      .site-header {
+        max-width: var(--page-max);
+        margin: 0 auto;
+        width: 100%;
+        padding: 1.4rem 1.25rem;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid var(--grid);
+        margin-bottom: 3rem;
+      }
+      .wordmark {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      .site-header nav {
+        display: flex;
+        align-items: baseline;
+        gap: 1.6rem;
+      }
+      @media (max-width: 30rem) {
+        .site-header {
+          flex-wrap: wrap;
+          padding-inline: 1rem;
+        }
+        .site-header nav {
+          gap: 1.1rem;
+        }
+      }
+      .site-header nav a {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        text-decoration: none;
+        color: var(--muted);
+      }
+      .site-header nav a:hover,
+      .site-header nav a[aria-current='page'] {
+        color: var(--ink);
+      }
+      .site-header nav a[aria-current='page'] {
+        border-bottom: 2px solid var(--c0);
+        padding-bottom: 0.15rem;
+      }
+      #theme-toggle {
+        font-size: 0.95rem;
+        line-height: 1;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 0.15rem;
+      }
+      #theme-toggle:hover {
+        color: var(--ink);
+      }
+      .site-footer {
+        border-top: 1px solid var(--grid);
+        margin-top: 3rem;
+      }
+      .foot-inner {
+        max-width: var(--page-max);
+        margin: 0 auto;
+        padding: 1.4rem 1.25rem 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.6rem 2rem;
+      }
+      .foot-links {
+        display: flex;
+        gap: 1.4rem;
+      }
+      .foot-links a {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .foot-links a:hover {
+        color: var(--ink);
+      }
+    </style>
+  </body>
+</html>

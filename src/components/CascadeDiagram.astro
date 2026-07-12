@@ -1,0 +1,83 @@
+---
+// Animated diagram of the confidence-gated cascade classifier
+// (TaiwanPlus-News-Classification). Each dot is a news video: most are
+// classified by the local DistilBERT; low-confidence cases route to Gemini.
+---
+
+<svg
+  viewBox="0 0 880 320"
+  role="img"
+  aria-label="Diagram of a confidence-gated cascade: news videos flow into a fine-tuned DistilBERT model; predictions with confidence at or above 0.80 are accepted (about 60%), the rest are escalated to Gemini 2.5 Flash; both paths merge into one of nine categories."
+>
+  <!-- flow lines -->
+  <path class="d-line" d="M 20 170 L 150 170" />
+  <path class="d-line" d="M 314 170 L 430 170" />
+  <path class="d-line-c0" d="M 430 170 L 830 170" />
+  <path class="d-line-c1" d="M 430 170 C 480 170 480 250 530 250" />
+  <path class="d-line-c1" d="M 674 250 C 712 250 712 170 750 170" />
+
+  <!-- animated dots (hidden when prefers-reduced-motion) -->
+  <circle class="flow-dot dot-a" cx="-10" cy="-10" r="3.5" style="animation-delay: 0s"></circle>
+  <circle class="flow-dot dot-a" cx="-10" cy="-10" r="3.5" style="animation-delay: -2.7s"></circle>
+  <circle class="flow-dot dot-a" cx="-10" cy="-10" r="3.5" style="animation-delay: -5.4s"></circle>
+  <circle class="flow-dot dot-b" cx="-10" cy="-10" r="3.5" style="animation-delay: -1.3s"></circle>
+  <circle class="flow-dot dot-b" cx="-10" cy="-10" r="3.5" style="animation-delay: -6.1s"></circle>
+
+  <!-- model boxes (paper fill so dots pass "through" them) -->
+  <g>
+    <rect class="d-box model-box" x="152" y="138" width="162" height="64" />
+    <text class="d-label" x="233" y="166" text-anchor="middle">DistilBERT</text>
+    <text class="d-label-sm" x="233" y="186" text-anchor="middle">fine-tuned · runs local</text>
+  </g>
+  <g>
+    <rect class="d-box model-box" x="530" y="218" width="144" height="64" />
+    <text class="d-label" x="602" y="246" text-anchor="middle">Gemini 2.5</text>
+    <text class="d-label-sm" x="602" y="266" text-anchor="middle">few-shot · API</text>
+  </g>
+
+  <!-- confidence gate -->
+  <path class="d-line d-dashed" d="M 430 118 L 430 244" />
+  <text class="d-label-sm" x="430" y="104" text-anchor="middle">confidence gate</text>
+  <text class="d-label" x="430" y="86" text-anchor="middle">τ = 0.80</text>
+
+  <!-- route labels -->
+  <text class="d-label-c0" x="588" y="156">≥ τ · ~60% accepted</text>
+  <text class="d-label-c1" x="452" y="306">&lt; τ · ~40% escalated</text>
+
+  <!-- input / output ticks -->
+  <path class="d-line" d="M 20 160 L 20 180" />
+  <text class="d-label-sm" x="20" y="200">news videos in</text>
+  <text class="d-label-sm" x="20" y="216">(title + tags only)</text>
+  <path class="d-line" d="M 830 160 L 830 180" />
+  <text class="d-label-sm" x="830" y="200" text-anchor="end">1 of 9 categories out</text>
+</svg>
+
+<style>
+  .model-box {
+    fill: var(--paper);
+  }
+  .flow-dot {
+    offset-rotate: 0deg;
+    animation: travel linear infinite;
+  }
+  .dot-a {
+    fill: var(--c0);
+    offset-path: path('M 20 170 L 830 170');
+    animation-duration: 8s;
+  }
+  .dot-b {
+    fill: var(--c1);
+    offset-path: path(
+      'M 20 170 L 430 170 C 480 170 480 250 530 250 L 674 250 C 712 250 712 170 750 170 L 830 170'
+    );
+    animation-duration: 10s;
+  }
+  @keyframes travel {
+    from {
+      offset-distance: 0%;
+    }
+    to {
+      offset-distance: 100%;
+    }
+  }
+</style>

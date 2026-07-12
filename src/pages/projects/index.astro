@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const projects = [
+  {
+    href: '/projects/news-classification/',
+    repo: 'https://github.com/shangweiyang79/TaiwanPlus-News-Classification',
+    title: 'News classification by confidence-gated cascade',
+    year: '2026',
+    stack: 'PyTorch · Hugging Face · Gemini API · scikit-learn',
+    blurb:
+      'Nine-category classifier for TaiwanPlus news videos from title and tags alone. A local DistilBERT handles what it is confident about; hard cases escalate to Gemini. 0.81 accuracy at roughly half the API cost — after finding and fixing the data leakage and label noise that made earlier numbers untrustworthy.',
+  },
+  {
+    href: '/projects/youtube-intelligence/',
+    repo: 'https://github.com/shangweiyang79/AI_project',
+    title: 'YouTube competitive intelligence, retrieval-augmented',
+    year: '2026',
+    stack: 'BigQuery · Vertex AI Search · Gemini · Streamlit · Cloud Run',
+    blurb:
+      'End-to-end RAG system that turns weekly performance data from ~10 international news channels into editorial insight on demand. Velocity metrics surface breakout content; a groundedness check ties every claim in every answer back to a source video.',
+  },
+];
+---
+
+<Base title="Work — Shangwei Yang">
+  <h1>Work</h1>
+  <p class="intro">
+    Two production systems built for the TaiwanPlus newsroom. Both are documented the way I think
+    ML work should be: the debugging, the honest metrics, and the trade-offs — not just the final
+    architecture.
+  </p>
+
+  {
+    projects.map((p) => (
+      <article class="project">
+        <div class="project-head">
+          <h2>
+            <a href={p.href}>{p.title}</a>
+          </h2>
+          <span class="meta">{p.year}</span>
+        </div>
+        <p class="meta stack">{p.stack}</p>
+        <p>{p.blurb}</p>
+        <p class="links">
+          <a href={p.href}>Full write-up</a>
+          <a href={p.repo}>GitHub</a>
+        </p>
+      </article>
+    ))
+  }
+</Base>
+
+<style>
+  .intro {
+    color: var(--muted);
+    margin-bottom: 3rem;
+  }
+  .project {
+    border-top: 1px solid var(--grid);
+    padding: 1.8rem 0 1.2rem;
+    max-width: var(--measure);
+  }
+  .project-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .project h2 {
+    margin: 0;
+  }
+  .project h2 a {
+    text-decoration: none;
+  }
+  .project h2 a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--c0);
+  }
+  .stack {
+    margin: 0.4rem 0 0.8rem;
+  }
+  .links {
+    display: flex;
+    gap: 1.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+</style>
