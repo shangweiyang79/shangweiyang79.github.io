@@ -1,13 +1,13 @@
 ---
 // Architecture of the YouTube competitive-intelligence RAG system
 // (AI_project): weekly channel data → BigQuery → Vertex AI Search →
-// Gemini, with a groundedness check tying every answer back to sources.
+// Gemini, with deterministic checks verifying every answer against the source data.
 ---
 
 <svg
   viewBox="0 0 880 250"
   role="img"
-  aria-label="Pipeline diagram: weekly YouTube exports flow into BigQuery, are indexed by Vertex AI Search, synthesized by Gemini 2.5 Flash, and served to the newsroom through a chat interface. A groundedness check loops each answer back to its source videos."
+  aria-label="Pipeline diagram: weekly YouTube exports flow into BigQuery, are indexed by Vertex AI Search, synthesized by Gemini 3.5 Flash, and served to the newsroom through a chat interface. Eight deterministic checks verify each answer's citations and numbers against the source data."
 >
   <!-- main pipeline -->
   <path class="d-line" d="M 18 118 L 100 118" />
@@ -27,7 +27,7 @@
   </g>
   <g>
     <rect class="d-box" x="510" y="90" width="150" height="56" />
-    <text class="d-label" x="585" y="123" text-anchor="middle">Gemini 2.5</text>
+    <text class="d-label" x="585" y="123" text-anchor="middle">Gemini 3.5</text>
     <text class="d-label-sm" x="510" y="168">strategic briefs</text>
   </g>
   <g>
@@ -41,8 +41,8 @@
   <text class="d-label-sm" x="18" y="72">weekly exports from</text>
   <text class="d-label-sm" x="18" y="88">~10 news channels</text>
 
-  <!-- groundedness loop -->
+  <!-- eval loop -->
   <path class="d-line-c1 d-dashed" d="M 640 146 L 640 206 L 440 206 L 440 152" />
   <path class="d-line-c1" d="M 435 162 L 440 152 L 445 162" />
-  <text class="d-label-c1" x="540" y="230" text-anchor="middle">groundedness check — every claim traced to a source video</text>
+  <text class="d-label-c1" x="540" y="230" text-anchor="middle">8 checks — every citation and number verified</text>
 </svg>

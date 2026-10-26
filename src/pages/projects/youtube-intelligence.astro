@@ -12,23 +12,24 @@ import Sidenote from '../../components/Sidenote.astro';
     <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
     <h1>YouTube competitive intelligence, retrieval-augmented</h1>
     <p class="meta">
-      Python · BigQuery · Vertex AI Search · Gemini 2.5 Flash · Streamlit · Cloud Run ·
+      Python · BigQuery · Vertex AI Search · Gemini 3.5 Flash · Streamlit · Cloud Run ·
       <a href="https://github.com/shangweiyang79/AI_project">github repo</a>
     </p>
 
     <p class="lede">
-      Every week, editors at TaiwanPlus wanted to know what was working for ten competing
+      Every week, editors at TaiwanPlus wanted to know what was working for about ten competing
       international news channels — and answering that meant someone manually scanning channel
-      pages for a day. I replaced the scan with a question box. The hard part wasn't the chat; it
-      was making sure the answers could be trusted in a newsroom.
+      pages for a day. I replaced the scan with a question box, and editors' decision time fell
+      30%. The hard part wasn't the chat; it was knowing whether an answer was fit to ship.
     </p>
 
     <figure>
       <RagDiagram />
       <figcaption>
         <span class="fig-no">Fig. 1</span>One pipeline, one command: weekly Comscore/YouTube
-        exports are cleaned, enriched with velocity metrics, loaded into BigQuery, indexed by
-        Vertex AI Search, and served through Gemini to a Streamlit chat on Cloud Run.
+        exports (~20K videos, deduplicated by video ID; ~10K after cleaning) are enriched with
+        velocity metrics, loaded into BigQuery, indexed by Vertex AI Search, and served through
+        Gemini to a Streamlit chat on Cloud Run. Every answer is checked before it ships.
       </figcaption>
     </figure>
 
@@ -43,14 +44,33 @@ import Sidenote from '../../components/Sidenote.astro';
       detection is a sort, not a model — the leverage was defining the right metric.
     </p>
 
-    <h2>Grounded answers or no answers</h2>
+    <h2>Evaluating an answer with no single right answer</h2>
     <p>
-      An LLM summarizing competitor strategy will happily invent a competitor. Every response
-      passes a groundedness check that traces its claims back to the retrieved source videos;
-      answers that can't be anchored don't ship.<Sidenote id="ground">
+      The output is a strategic brief — three trending topics, why each went viral, what to cover
+      next — so there is nothing to diff against. But "no correct answer" is not "no wrong
+      answers", and the wrong ones turned out to be mechanically detectable. Each brief splits
+      into claims that can be <em>verified</em> (this video exists; it has this many views) and
+      claims that can only be <em>judged</em> (it went viral because of emotional resonance). The
+      rule: never ask an LLM to verify a number it cannot recompute.<Sidenote id="ground">
         Two query modes serve different trust needs: the Answer API synthesizes a strategic brief
         with citations; the Search API returns ranked, filterable raw results when editors want to
         see the evidence themselves.
+      </Sidenote>
+    </p>
+    <p>
+      Eight deterministic checks verify every citation and number against the source database
+      after each answer — catching the same documentary cited three times as three videos, an
+      "Accelerating" label on a video with no trend data, and "trends" resting on a single
+      source. A golden set computed from each weekly snapshot defines which videos should qualify,
+      and a gate sends back any answer with three or more findings instead of shipping it.
+    </p>
+    <p>
+      On the labelled set, the gate catches 90% of the answers a reviewer rejected while passing
+      80% of the ones they accepted.<Sidenote id="caveat">
+        Stated plainly: that threshold was fitted on the same 20 answers, labelled by one reviewer.
+        It is a defensible starting point, not a validated constant. A rubric-based LLM judge is
+        implemented but parked — on the first labels it did not separate accepted from rejected
+        answers, while the deterministic counts did.
       </Sidenote> In an editorial setting this isn't a nice-to-have — an ungrounded "insight" that
       reaches a pitch meeting is worse than no tool at all.
     </p>
@@ -72,7 +92,8 @@ import Sidenote from '../../components/Sidenote.astro';
         <tr><td>Ingestion</td><td>Python, pandas — one-command pipeline (<code>run_pipeline.py</code>)</td></tr>
         <tr><td>Warehouse</td><td>Google BigQuery</td></tr>
         <tr><td>Retrieval</td><td>Vertex AI Search (synced from BigQuery via a Cloud Run service)</td></tr>
-        <tr><td>Generation</td><td>Gemini 2.5 Flash, grounded on retrieved sources</td></tr>
+        <tr><td>Generation</td><td>Gemini 3.5 Flash, grounded on retrieved sources</td></tr>
+        <tr><td>Evaluation</td><td>8 deterministic checks, computed golden set, ship/send-back gate; 23 tests over the checks</td></tr>
         <tr><td>Interface</td><td>Streamlit chat with preset newsroom queries</td></tr>
         <tr><td>Deployment</td><td>Cloud Run, serverless</td></tr>
         <tr><td>Reporting</td><td>python-pptx auto-generated decks</td></tr>
@@ -82,7 +103,7 @@ import Sidenote from '../../components/Sidenote.astro';
     <h2>What this project demonstrates</h2>
     <ul>
       <li><strong>Full ownership of an ML product</strong> — ingestion to deployment to the deck on the editor's desk, not a notebook that stops at a metric.</li>
-      <li><strong>Responsible generation</strong> — groundedness as a hard gate, with an escape hatch to raw evidence.</li>
+      <li><strong>Evals for open-ended output</strong> — verify what can be verified, gate on it, and keep the LLM judge parked until humans calibrate it.</li>
       <li><strong>Metric design as analysis</strong> — velocity turned a data dump into a detection system.</li>
     </ul>
 
