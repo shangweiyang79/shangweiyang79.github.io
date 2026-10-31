@@ -1,27 +1,25 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import CascadeDiagram from '../components/CascadeDiagram.astro';
 import MetricsLayerDiagram from '../components/MetricsLayerDiagram.astro';
 import RagDiagram from '../components/RagDiagram.astro';
-
-const notes = (await getCollection('notes')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
-const recent = notes.slice(0, 3);
-
-const fmt = (d: Date) => d.toISOString().slice(0, 10);
 ---
 
-<Base title="Shangwei Yang — Data Science &amp; Analytics Engineering">
+<Base title="Shangwei Yang — Data Engineering">
   <section class="hero">
-    <p class="eyebrow">Shangwei (Joy) Yang · data science &amp; analytics engineering · Taipei</p>
-    <h1>Honest numbers, from the raw table to the model.</h1>
+    <p class="eyebrow">Shangwei (Joy) Yang · data engineering · Taipei</p>
+    <h1>I build the pipelines and tested metrics a newsroom reports from.</h1>
     <p class="lede">
-      I work both ends of the data stack at TaiwanPlus, a newsroom with no data engineer on staff:
-      the tested dbt layer that gives every dashboard the same numbers, and the classifiers and RAG
-      tools built for editors. I came up through data science, and analytics engineering is where
-      I want to go deeper, because a model can only be as honest as the tables underneath it.
+      As a Data Analyst at TaiwanPlus, a newsroom with no data engineer on staff, I automated the
+      pipelines and built a tested dbt semantic layer, so dashboards, reports, and our AI assistant
+      share one set of metric definitions.
+    </p>
+    <p class="meta hero-stack">
+      dbt · SQL · BigQuery · Python · Cloud Workflows · GitHub Actions · Cloud Run
+    </p>
+    <p class="hero-links">
+      <a href="https://github.com/shangweiyang79">github</a>
+      <a href="https://www.linkedin.com/in/shang-wei-yang-670b9091/">linkedin</a>
+      <a href="mailto:shangweiyang79@gmail.com">email</a>
     </p>
   </section>
 
@@ -29,43 +27,22 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10);
     <figure>
       <MetricsLayerDiagram />
       <ul class="readout">
+        <li><b>17</b><span class="k">semantic metrics</span></li>
         <li><b>13</b><span class="k">legacy views replaced</span></li>
         <li><b>0</b><span class="k">dashboard changes</span></li>
         <li><b>40</b><span class="k">dbt tests</span></li>
-        <li><b>17</b><span class="k">semantic metrics</span></li>
       </ul>
       <figcaption>
         <span class="fig-no">Fig. 1</span>One metrics layer for three newsroom units on four social
-        platforms. Dashboards, reports, forecasts, and an AI assistant now read the same
-        definitions.
+        platforms. Dashboards, reports, forecasts, and an AI assistant read the same definitions.
       </figcaption>
     </figure>
     <p class="work-note">
       The dashboards stayed live throughout: every legacy view was rebuilt under its old name and
-      reconciled row by row before the switch.
+      reconciled row by row before the switch. The data team's AI assistant runs on the same
+      semantic layer.
       <a href="/projects/metrics-layer/">Read the full story</a> or see the
       <a href="https://github.com/shangweiyang79/taiwanplus-dbt">code on GitHub</a>.
-    </p>
-
-    <figure>
-      <CascadeDiagram />
-      <ul class="readout">
-        <li><b>0.81</b><span class="k">accuracy</span></li>
-        <li><b>0.81</b><span class="k">macro-F1</span></li>
-        <li><b>~60%</b><span class="k">of rows stay on the free model</span></li>
-        <li><b>1,179</b><span class="k">human-verified test rows</span></li>
-      </ul>
-      <figcaption>
-        <span class="fig-no">Fig. 2</span>Confidence-gated cascade for classifying TaiwanPlus news
-        videos into nine categories from title and tags alone. The cheap local model handles what
-        it is sure about; only genuinely hard cases pay for the API.
-      </figcaption>
-    </figure>
-    <p class="work-note">
-      The metrics above survived a data-leakage hunt, a chronological re-split, and an
-      LLM-assisted label audit — that debugging story is the real project.
-      <a href="/projects/news-classification/">Read the full story</a> or see the
-      <a href="https://github.com/shangweiyang79/TaiwanPlus-News-Classification">code on GitHub</a>.
     </p>
 
     <figure>
@@ -73,38 +50,26 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10);
       <ul class="readout">
         <li><b>~10</b><span class="k">channels tracked weekly</span></li>
         <li><b>−30%</b><span class="k">editors' decision time</span></li>
-        <li><b>8 checks</b><span class="k">verify every citation and number</span></li>
+        <li><b>8</b><span class="k">checks on every answer</span></li>
       </ul>
       <figcaption>
-        <span class="fig-no">Fig. 3</span>Competitive-intelligence RAG system for the TaiwanPlus
-        newsroom: weekly YouTube performance data becomes an editor-facing chat that answers
-        "what is working for competitors, and what are they missing?"
+        <span class="fig-no">Fig. 2</span>Competitive-intelligence assistant for the TaiwanPlus
+        newsroom. A weekly pipeline cleans and dedupes competitors' YouTube videos, loads them into
+        BigQuery, and keeps a search index in sync, so editors can ask what is working elsewhere.
       </figcaption>
     </figure>
     <p class="work-note">
-      End-to-end on GCP — pipeline, warehouse, retrieval, generation, deployment.
+      I pitched this and built it end to end on GCP: pipeline, warehouse, retrieval, generation,
+      and deployment.
       <a href="/projects/youtube-intelligence/">Read the architecture</a> or see the
       <a href="https://github.com/shangweiyang79/AI_project">code on GitHub</a>.
     </p>
   </section>
 
-  <section class="recent">
-    <h2 id="notes">Recent notes</h2>
-    <p class="recent-sub">
-      A running record of what I learn while building — mistakes included, especially the
-      instructive ones. <a href="/notes/">All notes</a>
-    </p>
-    <ul class="note-list">
-      {
-        recent.map((note) => (
-          <li>
-            <span class="meta meta-date">{fmt(note.data.date)}</span>
-            <a href={`/notes/${note.id}/`}>{note.data.title}</a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
+  <p class="more">
+    <a href="/projects/">All data engineering work</a>
+    <a href="/projects/data-science/">Data science work</a>
+  </p>
 </Base>
 
 <style>
@@ -119,6 +84,17 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10);
     line-height: 1.6;
     max-width: 40rem;
   }
+  .hero-stack {
+    margin: 1.4rem 0 0.6rem;
+  }
+  .hero-links,
+  .more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
   .work figure {
     margin-top: 3.5rem;
   }
@@ -126,33 +102,11 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10);
     color: var(--muted);
     font-size: 0.95rem;
     margin-top: 0.9rem;
-  }
-  .recent {
-    margin-top: 4.5rem;
-  }
-  .recent-sub {
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
-  .note-list {
-    list-style: none;
-    padding: 0;
-    margin: 1.5rem 0 0;
     max-width: var(--measure);
   }
-  .note-list li {
-    display: flex;
-    gap: 1.4rem;
-    align-items: baseline;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid var(--grid-soft);
-  }
-  .note-list a {
-    text-decoration: none;
-  }
-  .note-list a:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--c0);
-    text-underline-offset: 0.2em;
+  .more {
+    border-top: 1px solid var(--grid);
+    margin-top: 4rem;
+    padding-top: 1.4rem;
   }
 </style>

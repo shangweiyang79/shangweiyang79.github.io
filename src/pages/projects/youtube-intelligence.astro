@@ -9,7 +9,7 @@ import Sidenote from '../../components/Sidenote.astro';
   description="An end-to-end RAG system on GCP that turns weekly YouTube data from ten news channels into grounded editorial insight for the TaiwanPlus newsroom."
 >
   <article class="prose has-margin">
-    <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
+    <p class="eyebrow"><a href="/projects/">Data engineering</a> · 2026 · TaiwanPlus</p>
     <h1>YouTube competitive intelligence, retrieval-augmented</h1>
     <p class="meta">
       Python · BigQuery · Vertex AI Search · Gemini 3.5 Flash · Streamlit · Cloud Run ·
@@ -32,6 +32,16 @@ import Sidenote from '../../components/Sidenote.astro';
         Gemini to a Streamlit chat on Cloud Run. Every answer is checked before it ships.
       </figcaption>
     </figure>
+
+    <h2>The weekly pipeline</h2>
+    <p>
+      Each week a Comscore export arrives as a spreadsheet. A single command runs the whole chain:
+      Python dedupes videos by ID into a master table of about 20,000 records and computes velocity
+      from weekly snapshots, then strips promotional boilerplate and low-view rows down to about
+      10,000 records for embedding. Those load into BigQuery, and a Cloud Run service keeps the
+      Vertex AI Search index in sync through a REST import, so the warehouse stays the source of
+      truth and search never has to be rebuilt by hand.
+    </p>
 
     <h2>Velocity: finding breakouts before the totals do</h2>
     <p>
@@ -102,7 +112,7 @@ import Sidenote from '../../components/Sidenote.astro';
 
     <h2>What this project demonstrates</h2>
     <ul>
-      <li><strong>Full ownership of an ML product</strong> — ingestion to deployment to the deck on the editor's desk, not a notebook that stops at a metric.</li>
+      <li><strong>End-to-end ownership of a data product</strong> — ingestion to deployment to the deck on the editor's desk, not a notebook that stops at a metric.</li>
       <li><strong>Evals for open-ended output</strong> — verify what can be verified, gate on it, and keep the LLM judge parked until humans calibrate it.</li>
       <li><strong>Metric design as analysis</strong> — velocity turned a data dump into a detection system.</li>
     </ul>

@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import MetricsLayerDiagram from '../../components/MetricsLayerDiagram.astro';
+import OrchestrationDiagram from '../../components/OrchestrationDiagram.astro';
 import Sidenote from '../../components/Sidenote.astro';
 ---
 
@@ -9,7 +10,7 @@ import Sidenote from '../../components/Sidenote.astro';
   description="Rebuilding a newsroom's social reporting in dbt on BigQuery: one set of definitions across four platforms, 13 legacy views replaced with zero dashboard changes, event-driven orchestration, and CI/CD around all of it."
 >
   <article class="prose has-margin">
-    <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
+    <p class="eyebrow"><a href="/projects/">Data engineering</a> · 2026 · TaiwanPlus</p>
     <h1>A tested metrics layer for four social platforms</h1>
     <p class="meta">
       dbt · BigQuery · Cloud Workflows · GitHub Actions · Python ·
@@ -80,7 +81,7 @@ import Sidenote from '../../components/Sidenote.astro';
       </Sidenote> The cutover needed zero dashboard changes.
     </p>
 
-    <h2>Refreshing when the data lands, not when the clock says</h2>
+    <h2 id="orchestration">Refreshing when the data lands, not when the clock says</h2>
     <p>
       YouTube's content-owner reports have no fixed finish time. The scheduled queries behind three
       derived YouTube tables ran at set hours, so they kept firing before the data arrived, and the
@@ -92,6 +93,14 @@ import Sidenote from '../../components/Sidenote.astro';
         sends an alert.
       </Sidenote> The newest day now reaches the models about a day earlier.
     </p>
+
+    <figure>
+      <OrchestrationDiagram />
+      <figcaption>
+        <span class="fig-no">Fig. 2</span>The transfer itself starts the chain, and the Workflow
+        rebuilds nothing unless the source table is newer than the derived tables.
+      </figcaption>
+    </figure>
 
     <h2>What keeps it honest now</h2>
     <table>

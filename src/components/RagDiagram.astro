@@ -1,48 +1,55 @@
 ---
 // Architecture of the YouTube competitive-intelligence RAG system
-// (AI_project): weekly channel data → BigQuery → Vertex AI Search →
-// Gemini, with deterministic checks verifying every answer against the source data.
+// (AI_project): weekly channel data is cleaned and loaded into BigQuery, synced
+// into Vertex AI Search, and served through Gemini, with deterministic checks
+// verifying every answer against the source data.
+const boxes = [
+  { x: 52, label: 'Python ETL', sub: ['dedupe by video ID', 'velocity metrics'] },
+  { x: 222, label: 'BigQuery', sub: ['warehouse'] },
+  { x: 392, label: 'Vertex AI Search', sub: ['Cloud Run sync'] },
+  { x: 562, label: 'Gemini 3.5', sub: ['strategic briefs'] },
+  { x: 732, label: 'newsroom chat', sub: ['Streamlit · Cloud Run'] },
+];
+const w = 136;
 ---
 
 <svg
   viewBox="0 0 880 250"
   role="img"
-  aria-label="Pipeline diagram: weekly YouTube exports flow into BigQuery, are indexed by Vertex AI Search, synthesized by Gemini 3.5 Flash, and served to the newsroom through a chat interface. Eight deterministic checks verify each answer's citations and numbers against the source data."
+  aria-label="Pipeline diagram: weekly exports from about ten news channels are deduplicated by video ID and enriched with velocity metrics in Python, loaded into BigQuery, synced into Vertex AI Search by a Cloud Run service, synthesized by Gemini 3.5 Flash, and served to the newsroom through a chat interface. Eight deterministic checks verify each answer's citations and numbers against the source data."
 >
-  <!-- main pipeline -->
-  <path class="d-line" d="M 18 118 L 100 118" />
-  <path class="d-line" d="M 240 118 L 290 118" />
-  <path class="d-line" d="M 460 118 L 510 118" />
-  <path class="d-line d-arrow" d="M 660 118 L 712 118" />
-
-  <g>
-    <rect class="d-box" x="100" y="90" width="140" height="56" />
-    <text class="d-label" x="170" y="123" text-anchor="middle">BigQuery</text>
-    <text class="d-label-sm" x="100" y="168">cleaned · velocity metrics</text>
-  </g>
-  <g>
-    <rect class="d-box" x="290" y="90" width="170" height="56" />
-    <text class="d-label" x="375" y="123" text-anchor="middle">Vertex AI Search</text>
-    <text class="d-label-sm" x="290" y="168">semantic retrieval</text>
-  </g>
-  <g>
-    <rect class="d-box" x="510" y="90" width="150" height="56" />
-    <text class="d-label" x="585" y="123" text-anchor="middle">Gemini 3.5</text>
-    <text class="d-label-sm" x="510" y="168">strategic briefs</text>
-  </g>
-  <g>
-    <rect class="d-box" x="712" y="90" width="150" height="56" />
-    <text class="d-label" x="787" y="123" text-anchor="middle">newsroom chat</text>
-    <text class="d-label-sm" x="712" y="168">Streamlit · Cloud Run</text>
-  </g>
-
   <!-- input -->
-  <path class="d-line" d="M 18 108 L 18 128" />
-  <text class="d-label-sm" x="18" y="72">weekly exports from</text>
-  <text class="d-label-sm" x="18" y="88">~10 news channels</text>
+  <text class="d-label-sm" x="14" y="56">weekly exports from</text>
+  <text class="d-label-sm" x="14" y="72">~10 news channels</text>
+  <path class="d-line" d="M 14 108 L 14 128" />
+  <path class="d-line" d="M 14 118 L 52 118" />
+  <path class="d-line" d="M 46 113 L 52 118 L 46 123" />
+
+  <!-- main pipeline -->
+  {
+    boxes.map((b, i) => (
+      <>
+        <rect class="d-box" x={b.x} y="90" width={w} height="56" />
+        <text class="d-label" x={b.x + w / 2} y="123" text-anchor="middle">
+          {b.label}
+        </text>
+        {b.sub.map((line, n) => (
+          <text class="d-label-sm" x={b.x} y={168 + n * 16}>
+            {line}
+          </text>
+        ))}
+        {i < boxes.length - 1 && (
+          <>
+            <path class="d-line" d={`M ${b.x + w} 118 L ${b.x + w + 34} 118`} />
+            <path class="d-line" d={`M ${b.x + w + 28} 113 L ${b.x + w + 34} 118 L ${b.x + w + 28} 123`} />
+          </>
+        )}
+      </>
+    ))
+  }
 
   <!-- eval loop -->
-  <path class="d-line-c1 d-dashed" d="M 640 146 L 640 206 L 440 206 L 440 152" />
-  <path class="d-line-c1" d="M 435 162 L 440 152 L 445 162" />
-  <text class="d-label-c1" x="540" y="230" text-anchor="middle">8 checks — every citation and number verified</text>
+  <path class="d-line-c1 d-dashed" d="M 680 146 L 680 208 L 510 208 L 510 152" />
+  <path class="d-line-c1" d="M 505 162 L 510 152 L 515 162" />
+  <text class="d-label-c1" x="595" y="232" text-anchor="middle">8 checks — every citation and number verified</text>
 </svg>

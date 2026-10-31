@@ -1,150 +1,98 @@
 ---
 import Base from '../../layouts/Base.astro';
-import WorkMap from '../../components/WorkMap.astro';
-
-interface Project {
-  group: string;
-  href?: string;
-  repo?: string;
-  title: string;
-  year: string;
-  stack: string;
-  blurb: string;
-}
+import OrchestrationDiagram from '../../components/OrchestrationDiagram.astro';
+import ProjectList, { type Project } from '../../components/ProjectList.astro';
+import TrackNav from '../../components/TrackNav.astro';
 
 const projects: Project[] = [
   {
-    group: 'Data foundations',
     href: '/projects/metrics-layer/',
     repo: 'https://github.com/shangweiyang79/taiwanplus-dbt',
     title: 'A tested metrics layer for four social platforms',
     year: '2026',
-    stack: 'dbt · BigQuery · Cloud Workflows · GitHub Actions · Python',
+    stack: 'dbt · SQL · BigQuery · Python',
     blurb:
-      'One set of definitions for three newsroom units across YouTube, Instagram, Facebook, and X. I rebuilt 13 legacy views under their original names, reconciled them row by row, and switched production without changing a single dashboard. An event-driven Cloud Workflow now refreshes data as it lands, and every change to main goes through a pull request, 40 tests, and an automated deploy.',
+      'Metric definitions conflicted across platforms, and two "views" numbers sat about 2× apart. I modeled three newsroom units across YouTube, Instagram, Facebook, and X in layered dbt models with a 17-metric semantic layer, fixed Instagram views inflated 100× or more, then reconciled 13 legacy views row by row and replaced them in production with zero dashboard changes.',
   },
   {
-    group: 'Data foundations',
-    title: 'Social data pipelines',
+    href: '/projects/metrics-layer/#orchestration',
+    repo: 'https://github.com/shangweiyang79/taiwanplus-dbt/blob/main/.github/workflows/ci.yml',
+    title: 'Event-driven orchestration and CI/CD',
+    year: '2026',
+    stack: 'Cloud Workflows · Pub/Sub · Eventarc · GitHub Actions',
+    blurb:
+      'Replaced fixed-time refreshes with a Pub/Sub, Eventarc, and Cloud Workflows chain, so new YouTube data lands about a day earlier. Every pull request to main must pass an isolated dbt build and all 40 tests before GitHub Actions deploys it, keyless through Workload Identity Federation.',
+  },
+  {
+    title: 'Multi-platform performance pipeline',
     year: '2025',
     stack: 'Python · BigQuery · Cloud Run',
     blurb:
       "The team's first automated pipeline, loading YouTube, Meta, and X metrics into BigQuery on a schedule for the newsroom's dashboards and biweekly report. Monthly data prep fell from 2 hours to 30 minutes.",
   },
   {
-    group: 'Machine learning & AI',
-    href: '/projects/news-classification/',
-    repo: 'https://github.com/shangweiyang79/TaiwanPlus-News-Classification',
-    title: 'News classification by confidence-gated cascade',
-    year: '2026',
-    stack: 'PyTorch · Hugging Face · Gemini API · scikit-learn',
-    blurb:
-      'Nine-category classifier for TaiwanPlus news videos from title and tags alone. A local DistilBERT handles what it is confident about; hard cases escalate to Gemini. 0.81 accuracy with about 60% of rows staying on the free model — after finding and fixing the data leakage and label noise that made earlier numbers untrustworthy.',
-  },
-  {
-    group: 'Machine learning & AI',
     href: '/projects/youtube-intelligence/',
     repo: 'https://github.com/shangweiyang79/AI_project',
-    title: 'YouTube competitive intelligence, retrieval-augmented',
+    title: 'Competitive-intelligence assistant',
     year: '2026',
-    stack: 'BigQuery · Vertex AI Search · Gemini · Streamlit · Cloud Run',
+    stack: 'Python · BigQuery · Vertex AI Search · Cloud Run',
     blurb:
-      'End-to-end RAG system that turns weekly performance data from ~10 international news channels into editorial insight on demand. Velocity metrics surface breakout content; eight deterministic checks verify every citation and number before an answer ships, and editors\' decision time fell 30%.',
+      "I pitched and built a weekly pipeline that cleans and dedupes competitors' YouTube videos into a search index, powering a RAG chatbot that helps editors find on-brand video ideas and cut their decision time 30%.",
   },
 ];
-
-const groups = [...new Set(projects.map((p) => p.group))];
 ---
 
-<Base title="Work — Shangwei Yang">
-  <h1>Work</h1>
+<Base
+  title="Data engineering — Shangwei Yang"
+  description="Data engineering work by Shangwei (Joy) Yang: a tested dbt metrics layer, event-driven orchestration, CI/CD, and pipelines into BigQuery."
+>
+  <h1>Data engineering</h1>
   <p class="intro">
-    Systems built for the TaiwanPlus newsroom, from the pipelines and metric definitions underneath
-    to the ML tools on top. All of it is documented the same way: the debugging, the honest metrics,
-    and the trade-offs, not just the final architecture.
+    Getting data in, making it trustworthy, and shipping changes safely, all at TaiwanPlus.
   </p>
+  <TrackNav />
 
-  <figure class="map">
-    <WorkMap />
+  <figure class="lead">
+    <OrchestrationDiagram />
+    <ul class="readout">
+      <li><b>~1 day</b><span class="k">earlier YouTube data</span></li>
+      <li><b>40</b><span class="k">dbt tests on every PR</span></li>
+      <li><b>0</b><span class="k">stored keys</span></li>
+    </ul>
     <figcaption>
-      <span class="fig-no">Fig. 1</span>How the work connects. The classifier's topic labels feed
-      the metrics layer; the RAG system runs on its own pipeline.
+      <span class="fig-no">Fig. 1</span>Fixed-time queries kept running before YouTube's reports
+      landed. Now the transfer itself starts the chain, and the tables refresh only when the source
+      is newer.
     </figcaption>
   </figure>
 
-  {
-    groups.map((group) => (
-      <section>
-        <h2 class="group">{group}</h2>
-        {projects
-          .filter((p) => p.group === group)
-          .map((p) => (
-            <article class="project">
-              <div class="project-head">
-                <h3>{p.href ? <a href={p.href}>{p.title}</a> : p.title}</h3>
-                <span class="meta">{p.year}</span>
-              </div>
-              <p class="meta stack">{p.stack}</p>
-              <p>{p.blurb}</p>
-              {p.href && (
-                <p class="links">
-                  <a href={p.href}>Full write-up</a>
-                  <a href={p.repo}>GitHub</a>
-                </p>
-              )}
-            </article>
-          ))}
-      </section>
-    ))
-  }
+  <ProjectList projects={projects} />
+
+  <p class="training">
+    <span class="eyebrow">Training</span>
+    Team capstone, TibaMe Data Engineering Program: scraped Taiwan box-office data and built an ETL
+    pipeline with Prefect and a Tableau dashboard.
+  </p>
 </Base>
 
 <style>
   .intro {
     color: var(--muted);
-    margin-bottom: 2.5rem;
-  }
-  .map {
-    margin-bottom: 3rem;
-  }
-  .group {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 3rem 0 1rem;
-  }
-  .project {
-    border-top: 1px solid var(--grid);
-    padding: 1.8rem 0 1.2rem;
+    margin-bottom: 0;
     max-width: var(--measure);
   }
-  .project-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
+  .lead {
+    margin: 0 0 3rem;
   }
-  .project h3 {
-    margin: 0;
-    font-size: 1.45rem;
+  .training {
+    border-top: 1px solid var(--grid);
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: var(--measure);
+    padding-top: 1.2rem;
   }
-  .project h3 a {
-    text-decoration: none;
-  }
-  .project h3 a:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--c0);
-  }
-  .stack {
-    margin: 0.4rem 0 0.8rem;
-  }
-  .links {
-    display: flex;
-    gap: 1.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+  .training .eyebrow {
+    display: block;
+    margin-bottom: 0.3rem;
   }
 </style>

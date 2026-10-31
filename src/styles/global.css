@@ -245,9 +245,19 @@ figure svg {
   figure {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
   }
   figure svg {
     min-width: 40rem;
+  }
+  /* The numbers stay readable before anyone swipes the diagram */
+  figure .readout {
+    order: -1;
+    margin: 0 0 1rem;
+  }
+  figure:has(> svg) figcaption::after {
+    content: ' Swipe the figure to see all of it.';
   }
 }
 figcaption {

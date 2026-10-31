@@ -1,0 +1,113 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CascadeDiagram from '../../components/CascadeDiagram.astro';
+import ProjectList, { type Project } from '../../components/ProjectList.astro';
+import TrackNav from '../../components/TrackNav.astro';
+
+const projects: Project[] = [
+  {
+    href: '/projects/news-classification/',
+    repo: 'https://github.com/shangweiyang79/TaiwanPlus-News-Classification',
+    title: 'News classification by confidence-gated cascade',
+    year: '2026',
+    stack: 'PyTorch · Hugging Face · Gemini API · scikit-learn',
+    blurb:
+      'Nine-category classifier for TaiwanPlus news videos from title and tags alone. A local DistilBERT handles what it is confident about; hard cases escalate to Gemini. 0.81 accuracy with about 60% of rows staying on the free model — after finding and fixing the data leakage and label noise that made earlier numbers untrustworthy.',
+  },
+  {
+    href: '/projects/youtube-intelligence/',
+    repo: 'https://github.com/shangweiyang79/AI_project',
+    title: 'YouTube competitive intelligence, retrieval-augmented',
+    year: '2026',
+    stack: 'BigQuery · Vertex AI Search · Gemini · Streamlit · Cloud Run',
+    blurb:
+      "End-to-end RAG system that turns weekly performance data from ~10 international news channels into editorial insight on demand. Velocity metrics surface breakout content; eight deterministic checks verify every citation and number before an answer ships, and editors' decision time fell 30%.",
+  },
+];
+
+// Only the notes about this work: new data engineering notes stay on /notes/.
+const related = ['when-a-random-split-lies-to-you', 'cleaning-labels-beat-tuning-the-model'];
+const notes = (await getCollection('notes'))
+  .filter((n) => related.includes(n.id))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<Base
+  title="Data science — Shangwei Yang"
+  description="Data science work by Shangwei (Joy) Yang: a confidence-gated news classifier, RAG evaluation, and notes on what the metrics were hiding."
+>
+  <h1>Data science</h1>
+  <p class="intro">
+    Applied ML for the same newsroom, documented the way I think it should be: the debugging, the
+    honest metrics, and the trade-offs.
+  </p>
+  <TrackNav />
+
+  <figure class="lead">
+    <CascadeDiagram />
+    <ul class="readout">
+      <li><b>0.81</b><span class="k">accuracy</span></li>
+      <li><b>0.81</b><span class="k">macro-F1</span></li>
+      <li><b>~60%</b><span class="k">of rows stay on the free model</span></li>
+      <li><b>1,179</b><span class="k">human-verified test rows</span></li>
+    </ul>
+    <figcaption>
+      <span class="fig-no">Fig. 1</span>Confidence-gated cascade for classifying TaiwanPlus news
+      videos into nine categories from title and tags alone. The cheap local model handles what it
+      is sure about; only genuinely hard cases pay for the API.
+    </figcaption>
+  </figure>
+
+  <ProjectList projects={projects} />
+
+  <section class="related">
+    <h2>Related notes</h2>
+    <ul class="note-list">
+      {
+        notes.map((note) => (
+          <li>
+            <span class="meta meta-date">{fmt(note.data.date)}</span>
+            <a href={`/notes/${note.id}/`}>{note.data.title}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    color: var(--muted);
+    margin-bottom: 0;
+    max-width: var(--measure);
+  }
+  .lead {
+    margin: 0 0 3rem;
+  }
+  .related {
+    margin-top: 2.5rem;
+  }
+  .note-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    max-width: var(--measure);
+  }
+  .note-list li {
+    display: flex;
+    gap: 1.4rem;
+    align-items: baseline;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--grid-soft);
+  }
+  .note-list a {
+    text-decoration: none;
+  }
+  .note-list a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--c0);
+    text-underline-offset: 0.2em;
+  }
+</style>

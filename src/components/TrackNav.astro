@@ -1,0 +1,43 @@
+---
+// Sub-navigation between the two Work pages. Data engineering is the default;
+// data science keeps its own URL so a CV can link straight to it.
+const tracks = [
+  { href: '/projects/', label: 'Data engineering' },
+  { href: '/projects/data-science/', label: 'Data science' },
+];
+const path = Astro.url.pathname;
+---
+
+<nav class="tracks" aria-label="Work by discipline">
+  {
+    tracks.map((t) => (
+      <a href={t.href} aria-current={path === t.href ? 'page' : undefined}>
+        {t.label}
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .tracks {
+    display: flex;
+    gap: 1.6rem;
+    border-bottom: 1px solid var(--grid);
+    margin: 1.4rem 0 2.5rem;
+  }
+  .tracks a {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--muted);
+    padding-bottom: 0.5rem;
+    margin-bottom: -1px;
+  }
+  .tracks a:hover,
+  .tracks a[aria-current='page'] {
+    color: var(--ink);
+  }
+  .tracks a[aria-current='page'] {
+    border-bottom: 2px solid var(--c0);
+  }
+</style>

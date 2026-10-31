@@ -1,0 +1,49 @@
+---
+// Event-driven refresh of the derived YouTube tables (taiwanplus-dbt): the end
+// of a transfer run, not a schedule, starts the chain.
+const steps = [
+  { x: 9, label: 'Data Transfer', sub: 'report run ends' },
+  { x: 157, label: 'Pub/Sub', sub: 'publishes event' },
+  { x: 305, label: 'Eventarc', sub: 'starts workflow' },
+  { x: 453, label: 'Cloud Workflow', sub: 'is source newer?' },
+  { x: 601, label: 'stored procs', sub: '3 derived tables' },
+  { x: 749, label: 'dbt checks', sub: 'freshness · tests' },
+];
+const w = 122;
+---
+
+<svg
+  viewBox="0 0 880 216"
+  role="img"
+  aria-label="Event-driven chain: when a BigQuery Data Transfer run ends it publishes to Pub/Sub, Eventarc starts a Cloud Workflow, and the Workflow checks whether the source is newer. If it is not, the chain stops. If it is, versioned stored procedures refresh three derived tables and the dbt checks run. Any failure sends an email alert."
+>
+  <text class="d-label-sm" x="9" y="30">triggered by the data, not by a schedule</text>
+
+  {
+    steps.map((s, i) => (
+      <>
+        <rect class="d-box" x={s.x} y="46" width={w} height="60" />
+        <text class={i === 3 ? 'd-label-c0' : 'd-label'} x={s.x + w / 2} y="72" text-anchor="middle">
+          {s.label}
+        </text>
+        <text class="d-label-sm" x={s.x + w / 2} y="92" text-anchor="middle">
+          {s.sub}
+        </text>
+        {i < steps.length - 1 && (
+          <>
+            <path class="d-line" d={`M ${s.x + w} 76 L ${s.x + w + 26} 76`} />
+            <path class="d-line" d={`M ${s.x + w + 20} 71 L ${s.x + w + 26} 76 L ${s.x + w + 20} 81`} />
+          </>
+        )}
+      </>
+    ))
+  }
+
+  <!-- not newer: stop -->
+  <path class="d-line d-dashed" d="M 484 106 L 484 146" />
+  <text class="d-label-sm" x="476" y="142" text-anchor="end">no new data: stop</text>
+
+  <!-- failure path -->
+  <path class="d-line-c1 d-dashed" d="M 530 106 L 530 172 L 810 172 L 810 106" />
+  <text class="d-label-c1" x="670" y="196" text-anchor="middle">any failure sends an email alert</text>
+</svg>
