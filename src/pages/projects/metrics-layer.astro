@@ -82,11 +82,11 @@ import Sidenote from '../../components/Sidenote.astro';
 
     <h2>Refreshing when the data lands, not when the clock says</h2>
     <p>
-      YouTube's content-owner reports have no fixed finish time. The scheduled queries behind the
+      YouTube's content-owner reports have no fixed finish time. The scheduled queries behind three
       derived YouTube tables ran at set hours, so they kept firing before the data arrived, and the
       newest day reached those tables a day late. I replaced the clock with an event. Each transfer
-      run publishes to Pub/Sub, Eventarc starts a Cloud Workflow, and the Workflow refreshes the
-      derived tables only if the source is newer, then runs the dbt checks.<Sidenote id="workflow">
+      run publishes to Pub/Sub, Eventarc starts a Cloud Workflow, and the Workflow refreshes all
+      three only if the source is newer, then runs the dbt checks.<Sidenote id="workflow">
         Comparing table modified times needs no stored state, so a repeated notification doesn't
         trigger a second rebuild. The SQL now lives in versioned stored procedures, and a failed run
         sends an alert.
