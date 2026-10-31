@@ -19,9 +19,9 @@ const projects: Project[] = [
     repo: 'https://github.com/shangweiyang79/taiwanplus-dbt',
     title: 'A tested metrics layer for four social platforms',
     year: '2026',
-    stack: 'dbt · BigQuery · GitHub Actions · Python',
+    stack: 'dbt · BigQuery · Cloud Workflows · GitHub Actions · Python',
     blurb:
-      'One set of definitions for three newsroom units across YouTube, Instagram, Facebook, and X. I rebuilt 13 legacy views under their original names, reconciled them row by row, and switched production without changing a single dashboard. 40 tests, daily checks, and automated deploys now guard every change.',
+      'One set of definitions for three newsroom units across YouTube, Instagram, Facebook, and X. I rebuilt 13 legacy views under their original names, reconciled them row by row, and switched production without changing a single dashboard. An event-driven Cloud Workflow now refreshes data as it lands, and every change to main goes through a pull request, 40 tests, and an automated deploy.',
   },
   {
     group: 'Data foundations',

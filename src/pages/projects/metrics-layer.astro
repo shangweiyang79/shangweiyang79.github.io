@@ -6,13 +6,13 @@ import Sidenote from '../../components/Sidenote.astro';
 
 <Base
   title="A tested metrics layer for four social platforms — Shangwei Yang"
-  description="Rebuilding a newsroom's social reporting in dbt on BigQuery: one set of definitions across four platforms, 13 legacy views replaced with zero dashboard changes, and CI/CD around all of it."
+  description="Rebuilding a newsroom's social reporting in dbt on BigQuery: one set of definitions across four platforms, 13 legacy views replaced with zero dashboard changes, event-driven orchestration, and CI/CD around all of it."
 >
   <article class="prose has-margin">
     <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
     <h1>A tested metrics layer for four social platforms</h1>
     <p class="meta">
-      dbt · BigQuery · GitHub Actions · Python ·
+      dbt · BigQuery · Cloud Workflows · GitHub Actions · Python ·
       <a href="https://github.com/shangweiyang79/taiwanplus-dbt">github repo</a>
     </p>
 
@@ -28,9 +28,9 @@ import Sidenote from '../../components/Sidenote.astro';
       <MetricsLayerDiagram />
       <figcaption>
         <span class="fig-no">Fig. 1</span>Extract and load stay outside dbt, in scheduled Python
-        jobs; the raw BigQuery tables are the contract between the two sides. Dashboards read
-        compatibility views, while the assistant, forecasts, and biweekly report share the certified
-        definitions.
+        jobs and an event-driven Cloud Workflow; the raw BigQuery tables are the contract between
+        the two sides. Dashboards read compatibility views, while the assistant, forecasts, and
+        biweekly report share the certified definitions.
       </figcaption>
     </figure>
 
@@ -80,6 +80,19 @@ import Sidenote from '../../components/Sidenote.astro';
       </Sidenote> The cutover needed zero dashboard changes.
     </p>
 
+    <h2>Refreshing when the data lands, not when the clock says</h2>
+    <p>
+      YouTube's content-owner reports have no fixed finish time. The scheduled queries behind the
+      derived YouTube tables ran at set hours, so they kept firing before the data arrived, and the
+      newest day reached those tables a day late. I replaced the clock with an event. Each transfer
+      run publishes to Pub/Sub, Eventarc starts a Cloud Workflow, and the Workflow refreshes the
+      derived tables only if the source is newer, then runs the dbt checks.<Sidenote id="workflow">
+        Comparing table modified times needs no stored state, so a repeated notification doesn't
+        trigger a second rebuild. The SQL now lives in versioned stored procedures, and a failed run
+        sends an alert.
+      </Sidenote> The newest day now reaches the models about a day earlier.
+    </p>
+
     <h2>What keeps it honest now</h2>
     <table>
       <thead>
@@ -88,8 +101,9 @@ import Sidenote from '../../components/Sidenote.astro';
       <tbody>
         <tr><td>Tests</td><td>40 dbt tests: 30 generic and 10 singular, such as "the fact table equals an independent sum of the raw sources"</td></tr>
         <tr><td>Freshness</td><td>Thresholds tuned to how each source group actually loads</td></tr>
-        <tr><td>CI</td><td>Every pull request builds the whole project in an isolated dataset and runs every test</td></tr>
-        <tr><td>CD</td><td>Merging to <code>main</code> deploys production, keyless through Workload Identity Federation</td></tr>
+        <tr><td>CI</td><td>Changes to <code>main</code> need a pull request, which can merge only after the whole project builds in an isolated dataset and every test passes</td></tr>
+        <tr><td>CD</td><td>Merging deploys dbt, the stored procedures, the Workflow, and the daily-checks image with no manual step</td></tr>
+        <tr><td>Access</td><td>Keyless through Workload Identity Federation, with a least-privilege service account per job; only <code>main</code> can deploy</td></tr>
         <tr><td>Daily checks</td><td>A read-only job runs freshness and tests against production and emails on failure</td></tr>
         <tr><td>Documentation</td><td>Definitions live in one file and are written into BigQuery column descriptions</td></tr>
       </tbody>
@@ -115,12 +129,12 @@ import Sidenote from '../../components/Sidenote.astro';
     <ul>
       <li><strong>Modeling the question, not just the data</strong> — the hard part was deciding what "views" should mean, then encoding that in table and metric names.</li>
       <li><strong>Migrations you can prove</strong> — same names, row-level reconciliation, and no change for the people reading the dashboards.</li>
-      <li><strong>Software practice for data</strong> — tests, CI/CD, keyless deploys, and daily checks around a warehouse project.</li>
+      <li><strong>Software practice for data</strong> — event-driven orchestration, tests, required pull requests, keyless deploys, and daily checks around a warehouse project.</li>
       <li><strong>One source for every reader</strong> — dashboards, reports, forecasts, and an LLM all trace back to the same definitions.</li>
     </ul>
 
     <p class="meta">
-      Models, tests, and CI/CD:
+      Models, tests, orchestration, and CI/CD:
       <a href="https://github.com/shangweiyang79/taiwanplus-dbt">shangweiyang79/taiwanplus-dbt</a>.
       The TaiwanPlus data is proprietary and not included; results are given as relative figures.
     </p>
