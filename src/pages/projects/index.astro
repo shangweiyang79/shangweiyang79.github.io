@@ -1,17 +1,48 @@
 ---
 import Base from '../../layouts/Base.astro';
+import WorkMap from '../../components/WorkMap.astro';
 
-const projects = [
+interface Project {
+  group: string;
+  href?: string;
+  repo?: string;
+  title: string;
+  year: string;
+  stack: string;
+  blurb: string;
+}
+
+const projects: Project[] = [
   {
+    group: 'Data foundations',
+    href: '/projects/metrics-layer/',
+    repo: 'https://github.com/shangweiyang79/taiwanplus-dbt',
+    title: 'A tested metrics layer for four social platforms',
+    year: '2026',
+    stack: 'dbt · BigQuery · GitHub Actions · Python',
+    blurb:
+      'One set of definitions for three newsroom units across YouTube, Instagram, Facebook, and X. I rebuilt 13 legacy views under their original names, reconciled them row by row, and switched production without changing a single dashboard. 40 tests, daily checks, and automated deploys now guard every change.',
+  },
+  {
+    group: 'Data foundations',
+    title: 'Social data pipelines',
+    year: '2025',
+    stack: 'Python · BigQuery · Cloud Run',
+    blurb:
+      "The team's first automated pipeline, loading YouTube, Meta, and X metrics into BigQuery on a schedule for the newsroom's dashboards and biweekly report. Monthly data prep fell from 2 hours to 30 minutes.",
+  },
+  {
+    group: 'Machine learning & AI',
     href: '/projects/news-classification/',
     repo: 'https://github.com/shangweiyang79/TaiwanPlus-News-Classification',
     title: 'News classification by confidence-gated cascade',
     year: '2026',
     stack: 'PyTorch · Hugging Face · Gemini API · scikit-learn',
     blurb:
-      'Nine-category classifier for TaiwanPlus news videos from title and tags alone. A local DistilBERT handles what it is confident about; hard cases escalate to Gemini. 0.81 accuracy at roughly half the API cost — after finding and fixing the data leakage and label noise that made earlier numbers untrustworthy.',
+      'Nine-category classifier for TaiwanPlus news videos from title and tags alone. A local DistilBERT handles what it is confident about; hard cases escalate to Gemini. 0.81 accuracy with about 60% of rows staying on the free model — after finding and fixing the data leakage and label noise that made earlier numbers untrustworthy.',
   },
   {
+    group: 'Machine learning & AI',
     href: '/projects/youtube-intelligence/',
     repo: 'https://github.com/shangweiyang79/AI_project',
     title: 'YouTube competitive intelligence, retrieval-augmented',
@@ -21,32 +52,49 @@ const projects = [
       'End-to-end RAG system that turns weekly performance data from ~10 international news channels into editorial insight on demand. Velocity metrics surface breakout content; eight deterministic checks verify every citation and number before an answer ships, and editors\' decision time fell 30%.',
   },
 ];
+
+const groups = [...new Set(projects.map((p) => p.group))];
 ---
 
 <Base title="Work — Shangwei Yang">
   <h1>Work</h1>
   <p class="intro">
-    Two production systems built for the TaiwanPlus newsroom. Both are documented the way I think
-    ML work should be: the debugging, the honest metrics, and the trade-offs — not just the final
-    architecture.
+    Systems built for the TaiwanPlus newsroom, from the pipelines and metric definitions underneath
+    to the ML tools on top. All of it is documented the same way: the debugging, the honest metrics,
+    and the trade-offs, not just the final architecture.
   </p>
 
+  <figure class="map">
+    <WorkMap />
+    <figcaption>
+      <span class="fig-no">Fig. 1</span>How the work connects. The classifier's topic labels feed
+      the metrics layer; the RAG system runs on its own pipeline.
+    </figcaption>
+  </figure>
+
   {
-    projects.map((p) => (
-      <article class="project">
-        <div class="project-head">
-          <h2>
-            <a href={p.href}>{p.title}</a>
-          </h2>
-          <span class="meta">{p.year}</span>
-        </div>
-        <p class="meta stack">{p.stack}</p>
-        <p>{p.blurb}</p>
-        <p class="links">
-          <a href={p.href}>Full write-up</a>
-          <a href={p.repo}>GitHub</a>
-        </p>
-      </article>
+    groups.map((group) => (
+      <section>
+        <h2 class="group">{group}</h2>
+        {projects
+          .filter((p) => p.group === group)
+          .map((p) => (
+            <article class="project">
+              <div class="project-head">
+                <h3>{p.href ? <a href={p.href}>{p.title}</a> : p.title}</h3>
+                <span class="meta">{p.year}</span>
+              </div>
+              <p class="meta stack">{p.stack}</p>
+              <p>{p.blurb}</p>
+              {p.href && (
+                <p class="links">
+                  <a href={p.href}>Full write-up</a>
+                  <a href={p.repo}>GitHub</a>
+                </p>
+              )}
+            </article>
+          ))}
+      </section>
     ))
   }
 </Base>
@@ -54,7 +102,19 @@ const projects = [
 <style>
   .intro {
     color: var(--muted);
+    margin-bottom: 2.5rem;
+  }
+  .map {
     margin-bottom: 3rem;
+  }
+  .group {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 3rem 0 1rem;
   }
   .project {
     border-top: 1px solid var(--grid);
@@ -67,13 +127,14 @@ const projects = [
     align-items: baseline;
     gap: 1rem;
   }
-  .project h2 {
+  .project h3 {
     margin: 0;
+    font-size: 1.45rem;
   }
-  .project h2 a {
+  .project h3 a {
     text-decoration: none;
   }
-  .project h2 a:hover {
+  .project h3 a:hover {
     text-decoration: underline;
     text-decoration-color: var(--c0);
   }

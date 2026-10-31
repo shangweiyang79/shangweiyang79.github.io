@@ -1,0 +1,87 @@
+---
+// Architecture of the TaiwanPlus metrics layer (taiwanplus-dbt): platform data
+// lands in BigQuery, dbt models it in layers, and two outputs serve different
+// readers. The quality gates apply to the whole dbt project.
+---
+
+<svg
+  viewBox="0 0 880 330"
+  role="img"
+  aria-label="Pipeline diagram: YouTube, Instagram, Facebook, X and CMS data are loaded into BigQuery raw tables by scheduled Python jobs. dbt models them through staging, intermediate and marts layers. The marts feed 13 compatibility views read by Looker Studio, and a semantic layer of 17 metrics read by the AI assistant, forecasts and the biweekly report. 40 tests, freshness checks, CI on every pull request, deploy on merge and daily checks cover the dbt project."
+>
+  <!-- sources -->
+  <text class="d-label" x="14" y="62">YouTube</text>
+  <text class="d-label" x="14" y="90">Instagram</text>
+  <text class="d-label" x="14" y="118">Facebook</text>
+  <text class="d-label" x="14" y="146">X</text>
+  <text class="d-label" x="14" y="174">CMS</text>
+  <path class="d-line" d="M 100 50 L 106 50 L 106 180 L 100 180" />
+  <path class="d-line" d="M 106 115 L 128 115" />
+  <path class="d-line" d="M 122 110 L 128 115 L 122 120" />
+
+  <!-- raw layer -->
+  <rect class="d-box" x="128" y="87" width="108" height="56" />
+  <text class="d-label" x="182" y="111" text-anchor="middle">BigQuery</text>
+  <text class="d-label-sm" x="182" y="129" text-anchor="middle">raw tables</text>
+  <text class="d-label-sm" x="128" y="163">Python · Cloud Run</text>
+  <path class="d-line" d="M 236 115 L 268 115" />
+  <path class="d-line" d="M 262 110 L 268 115 L 262 120" />
+
+  <!-- dbt region -->
+  <rect class="d-box-soft" x="268" y="14" width="356" height="224" />
+  <text class="d-label-c0" x="284" y="36">dbt</text>
+
+  <rect class="d-box stage" x="284" y="48" width="140" height="48" />
+  <text class="d-label" x="354" y="69" text-anchor="middle">staging</text>
+  <text class="d-label-sm" x="354" y="85" text-anchor="middle">11 models</text>
+  <path class="d-line" d="M 354 96 L 354 110" />
+  <path class="d-line" d="M 349 104 L 354 110 L 359 104" />
+
+  <rect class="d-box stage" x="284" y="110" width="140" height="48" />
+  <text class="d-label" x="354" y="131" text-anchor="middle">intermediate</text>
+  <text class="d-label-sm" x="354" y="147" text-anchor="middle">2 models</text>
+  <path class="d-line" d="M 354 158 L 354 172" />
+  <path class="d-line" d="M 349 166 L 354 172 L 359 166" />
+
+  <rect class="d-box stage" x="284" y="172" width="140" height="48" />
+  <text class="d-label" x="354" y="193" text-anchor="middle">marts</text>
+  <text class="d-label-sm" x="354" y="209" text-anchor="middle">daily · video level</text>
+
+  <path class="d-line" d="M 424 196 L 444 196 L 444 80 L 460 80" />
+  <path class="d-line" d="M 444 172 L 460 172" />
+  <path class="d-line" d="M 454 75 L 460 80 L 454 85" />
+  <path class="d-line" d="M 454 167 L 460 172 L 454 177" />
+
+  <rect class="d-box stage" x="460" y="48" width="148" height="64" />
+  <text class="d-label" x="534" y="75" text-anchor="middle">compat views</text>
+  <text class="d-label-sm" x="534" y="93" text-anchor="middle">13 · same names</text>
+
+  <rect class="d-box stage" x="460" y="140" width="148" height="64" />
+  <text class="d-label-c0" x="534" y="167" text-anchor="middle">semantic layer</text>
+  <text class="d-label-sm" x="534" y="185" text-anchor="middle">17 metrics</text>
+
+  <!-- readers -->
+  <path class="d-line" d="M 608 80 L 668 80" />
+  <path class="d-line" d="M 662 75 L 668 80 L 662 85" />
+  <path class="d-line" d="M 608 172 L 660 172" />
+  <path class="d-line" d="M 666 136 L 660 136 L 660 208 L 666 208" />
+
+  <rect class="d-box" x="668" y="52" width="198" height="56" />
+  <text class="d-label" x="767" y="84" text-anchor="middle">Looker Studio</text>
+  <text class="d-label" x="674" y="141">AI data assistant</text>
+  <text class="d-label" x="674" y="176">forecasts</text>
+  <text class="d-label" x="674" y="211">biweekly report</text>
+
+  <!-- quality gates -->
+  <path class="d-line-c1 d-dashed" d="M 446 238 L 446 268" />
+  <path class="d-line-c1" d="M 441 248 L 446 238 L 451 248" />
+  <path class="d-line-c1 d-dashed" d="M 128 268 L 764 268" />
+  <text class="d-label-c1" x="446" y="292" text-anchor="middle">40 tests · freshness checks · CI on every PR</text>
+  <text class="d-label-c1" x="446" y="312" text-anchor="middle">deploy on merge · daily checks against production</text>
+</svg>
+
+<style>
+  .stage {
+    fill: var(--paper);
+  }
+</style>

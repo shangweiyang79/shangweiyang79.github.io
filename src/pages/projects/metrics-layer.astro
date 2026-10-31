@@ -1,0 +1,134 @@
+---
+import Base from '../../layouts/Base.astro';
+import MetricsLayerDiagram from '../../components/MetricsLayerDiagram.astro';
+import Sidenote from '../../components/Sidenote.astro';
+---
+
+<Base
+  title="A tested metrics layer for four social platforms — Shangwei Yang"
+  description="Rebuilding a newsroom's social reporting in dbt on BigQuery: one set of definitions across four platforms, 13 legacy views replaced with zero dashboard changes, and CI/CD around all of it."
+>
+  <article class="prose has-margin">
+    <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
+    <h1>A tested metrics layer for four social platforms</h1>
+    <p class="meta">
+      dbt · BigQuery · GitHub Actions · Python ·
+      <a href="https://github.com/shangweiyang79/taiwanplus-dbt">github repo</a>
+    </p>
+
+    <p class="lede">
+      Leadership at TaiwanPlus kept asking how the News Department was doing on social, and nobody
+      could give one answer. Three units publish on YouTube, Instagram, Facebook, and X. Each
+      platform counts a view differently, the old reporting views covered only one unit, and live
+      dashboards depended on those views staying exactly as they were. With no data engineer on
+      staff, I rebuilt the layer in dbt and switched production without changing a single dashboard.
+    </p>
+
+    <figure>
+      <MetricsLayerDiagram />
+      <figcaption>
+        <span class="fig-no">Fig. 1</span>Extract and load stay outside dbt, in scheduled Python
+        jobs; the raw BigQuery tables are the contract between the two sides. Dashboards read
+        compatibility views, while the assistant, forecasts, and biweekly report share the certified
+        definitions.
+      </figcaption>
+    </figure>
+
+    <h2>Two numbers, both called views</h2>
+    <p>
+      Two reports gave different September views for the same account, and for one unit the gap was
+      about 2×. Neither was wrong. One summed the views that happened in September; the other summed
+      the lifetime views of videos published in September. I modeled them as separate fact tables
+      with different metric names, wrote down which question each one answers, and certified daily
+      traffic as the KPI.<Sidenote id="grains">
+        "How are we doing" goes to daily traffic, "which videos" to video level, and "why did it
+        change" to both, clearly labeled. The AI assistant gets the same rule, and eval questions
+        check that it picks the right grain.
+      </Sidenote>
+    </p>
+
+    <h2>Never sum a snapshot table</h2>
+    <p>
+      Instagram stores one cumulative snapshot per reel per day, so a plain <code>SUM</code>
+      inflated views 100× or more. The legacy daily report took today's account total minus
+      yesterday's, which went negative whenever the API dropped reels from its response. Now each
+      reel is compared with its own previous snapshot, and cumulative values take a running max so a
+      missing reading can't create a negative. A test fails if a negative day ever comes back.
+    </p>
+
+    <h2>A definition change is not growth</h2>
+    <p>
+      In August 2026 YouTube relaxed its view threshold, and Views jumped overnight. A chart alone
+      would have called that growth. Views stayed the KPI, because it is what YouTube Studio shows,
+      and I added engaged views as a reference metric at both grains. Instagram's method change is
+      recorded the same way, in a column that travels with the data, so a reader can separate real
+      movement from a redefinition.
+    </p>
+
+    <h2>Moving live dashboards without touching them</h2>
+    <p>
+      Thirteen hand-written BigQuery views sat behind live Looker Studio dashboards, so a broken
+      migration would have been visible to leadership immediately. I rebuilt each view in dbt under
+      the same name with the same columns, then wrote a script that diffs every view row by row:
+      exact on non-float columns, 1e-6 relative tolerance on floats.
+    </p>
+    <p>
+      All 13 reconciled. The only differences were floating-point noise below 1e-11 and 2 rows of an
+      approximate median.<Sidenote id="approx">
+        Those two rows also change when the old view's own SQL is rerun, so they are a property of
+        <code>APPROX_QUANTILES</code>, not of the migration.
+      </Sidenote> The cutover needed zero dashboard changes.
+    </p>
+
+    <h2>What keeps it honest now</h2>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>What runs</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Tests</td><td>40 dbt tests: 30 generic and 10 singular, such as "the fact table equals an independent sum of the raw sources"</td></tr>
+        <tr><td>Freshness</td><td>Thresholds tuned to how each source group actually loads</td></tr>
+        <tr><td>CI</td><td>Every pull request builds the whole project in an isolated dataset and runs every test</td></tr>
+        <tr><td>CD</td><td>Merging to <code>main</code> deploys production, keyless through Workload Identity Federation</td></tr>
+        <tr><td>Daily checks</td><td>A read-only job runs freshness and tests against production and emails on failure</td></tr>
+        <tr><td>Documentation</td><td>Definitions live in one file and are written into BigQuery column descriptions</td></tr>
+      </tbody>
+    </table>
+
+    <h2>One definition, read by an LLM too</h2>
+    <p>
+      The semantic layer holds 17 metrics across 2 semantic models. A script generates the AI
+      context directly from the dbt manifest, so that file is never edited by hand and can't drift
+      from the models. The read-only assistant built on it passes all 20 golden questions in its
+      deployed mode, including traps like ranking platforms on absolute views or picking the wrong
+      grain.
+    </p>
+
+    <h2>What I haven't built</h2>
+    <p>
+      Every model is a view today, so hot marts are the next thing to materialize. Slim CI isn't
+      worth the upkeep while full builds stay fast. Snapshots for slowly changing mappings, such as
+      which unit owns a channel, are also still ahead.
+    </p>
+
+    <h2>What this project demonstrates</h2>
+    <ul>
+      <li><strong>Modeling the question, not just the data</strong> — the hard part was deciding what "views" should mean, then encoding that in table and metric names.</li>
+      <li><strong>Migrations you can prove</strong> — same names, row-level reconciliation, and no change for the people reading the dashboards.</li>
+      <li><strong>Software practice for data</strong> — tests, CI/CD, keyless deploys, and daily checks around a warehouse project.</li>
+      <li><strong>One source for every reader</strong> — dashboards, reports, forecasts, and an LLM all trace back to the same definitions.</li>
+    </ul>
+
+    <p class="meta">
+      Models, tests, and CI/CD:
+      <a href="https://github.com/shangweiyang79/taiwanplus-dbt">shangweiyang79/taiwanplus-dbt</a>.
+      The TaiwanPlus data is proprietary and not included; results are given as relative figures.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.12rem;
+  }
+</style>

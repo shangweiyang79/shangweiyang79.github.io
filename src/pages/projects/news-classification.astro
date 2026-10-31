@@ -25,7 +25,7 @@ const ticks = [0.7, 0.75, 0.8, 0.85];
 
 <Base
   title="News classification by confidence-gated cascade — Shangwei Yang"
-  description="Classifying TaiwanPlus news videos into nine categories: finding data leakage, cleaning labels with an LLM, and routing by confidence to halve API cost."
+  description="Classifying TaiwanPlus news videos into nine categories: finding data leakage, cleaning labels with an LLM, and routing by confidence to keep most rows on the free model."
 >
   <article class="prose has-margin">
     <p class="eyebrow">Case study · 2026 · TaiwanPlus</p>
@@ -42,7 +42,7 @@ const ticks = [0.7, 0.75, 0.8, 0.85];
         International Relations, US Relations, China Relations, Military, Politics, Social &amp;
         Rights, Business &amp; Economy, Environment &amp; Climate, Culture &amp; Lifestyle.
       </Sidenote> using only what every video is guaranteed to have: a title and tags. The final system
-      reads 0.81 accuracy at roughly half the API cost of a pure-LLM approach — but the numbers are
+      reads 0.81 accuracy with about 60% of rows never reaching the paid API — but the numbers are
       the least interesting part. This is a story about the three times my evaluation lied to me.
     </p>
 
@@ -151,7 +151,8 @@ const ticks = [0.7, 0.75, 0.8, 0.85];
         τ = 0.80 was chosen on the validation set as the point where DistilBERT's accepted
         predictions match Gemini's accuracy — below it, you pay for answers the free model already
         gets right.
-      </Sidenote> The result matches pure-Gemini accuracy at roughly half the API cost.
+      </Sidenote> The result matches pure-Gemini accuracy while about 60% of rows never call the paid
+      API.
     </p>
 
     <figure>
@@ -166,7 +167,7 @@ const ticks = [0.7, 0.75, 0.8, 0.85];
     <h2>What this project demonstrates</h2>
     <ul>
       <li><strong>Evaluation before optimization</strong> — leakage found, split rebuilt, labels audited, then and only then tuned.</li>
-      <li><strong>Cost as a design constraint</strong> — the interesting engineering is matching top accuracy at half the price, not squeezing another half-point.</li>
+      <li><strong>Cost as a design constraint</strong> — the interesting engineering is matching top accuracy while most rows stay on the free model, not squeezing another half-point.</li>
       <li><strong>LLMs as instruments, not oracles</strong> — Gemini serves as annotator, benchmark referee, and escalation tier, each with its output checked.</li>
     </ul>
 

@@ -1,0 +1,54 @@
+---
+// How the projects on the Work page connect: the data foundations carry the
+// reporting, and the two ML/AI systems sit beside them rather than apart.
+---
+
+<svg
+  viewBox="0 0 880 230"
+  role="img"
+  aria-label="Map of the work. Social data pipelines feed the metrics layer, which serves dashboards, forecasts, the biweekly report and an AI data assistant. The news classifier supplies topic labels to the metrics layer. The competitive-intelligence RAG system runs on its own BigQuery pipeline."
+>
+  <text class="d-label-sm" x="14" y="36">data foundations</text>
+  <text class="d-label-sm" x="14" y="166">ml &amp; ai</text>
+  <path class="d-line d-dashed lane" d="M 14 112 L 866 112" />
+
+  <rect class="d-box" x="14" y="50" width="176" height="44" />
+  <text class="d-label" x="102" y="77" text-anchor="middle">Social data pipelines</text>
+  <path class="d-line" d="M 190 72 L 250 72" />
+  <path class="d-line" d="M 244 67 L 250 72 L 244 77" />
+
+  <a href="/projects/metrics-layer/">
+    <rect class="d-box map-link" x="250" y="50" width="176" height="44" />
+    <text class="d-label-c0" x="338" y="77" text-anchor="middle">Metrics layer</text>
+  </a>
+  <path class="d-line" d="M 426 72 L 486 72" />
+  <path class="d-line" d="M 480 67 L 486 72 L 480 77" />
+  <text class="d-label" x="498" y="66">dashboards · forecasts</text>
+  <text class="d-label" x="498" y="86">biweekly report · AI assistant</text>
+
+  <a href="/projects/news-classification/">
+    <rect class="d-box map-link" x="250" y="146" width="176" height="44" />
+    <text class="d-label-c0" x="338" y="173" text-anchor="middle">News classifier</text>
+  </a>
+  <path class="d-line-c1" d="M 338 146 L 338 94" />
+  <path class="d-line-c1" d="M 333 100 L 338 94 L 343 100" />
+  <text class="d-label-c1" x="348" y="128">topic labels</text>
+
+  <a href="/projects/youtube-intelligence/">
+    <rect class="d-box map-link" x="498" y="146" width="240" height="44" />
+    <text class="d-label-c0" x="618" y="173" text-anchor="middle">Competitive-intelligence RAG</text>
+  </a>
+  <text class="d-label-sm" x="498" y="210">own pipeline on BigQuery</text>
+</svg>
+
+<style>
+  .lane {
+    stroke: var(--grid);
+  }
+  .map-link {
+    fill: transparent;
+  }
+  a:hover .map-link {
+    fill: var(--grid-soft);
+  }
+</style>
