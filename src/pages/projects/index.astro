@@ -12,7 +12,7 @@ const projects: Project[] = [
     year: '2026',
     stack: 'dbt · SQL · BigQuery · Python',
     blurb:
-      'Metric definitions conflicted across platforms, and two "views" numbers sat about 2× apart. I modeled three newsroom units across YouTube, Instagram, Facebook, and X in layered dbt models with a 17-metric semantic layer, fixed Instagram views inflated 100× or more, then reconciled 13 legacy views row by row and replaced them in production with zero dashboard changes.',
+      'Metric definitions conflicted across platforms, and two "views" numbers sat about 2× apart. I modeled three newsroom units across YouTube, Instagram, Facebook, and X in layered dbt models with a 17-metric semantic layer, fixed negative Instagram days with per-reel deltas, then reconciled 13 legacy views row by row and replaced them in production with zero dashboard changes.',
   },
   {
     href: '/projects/metrics-layer/#orchestration',
@@ -21,7 +21,7 @@ const projects: Project[] = [
     year: '2026',
     stack: 'Cloud Workflows · Pub/Sub · Eventarc · GitHub Actions',
     blurb:
-      'Replaced fixed-time refreshes with a Pub/Sub, Eventarc, and Cloud Workflows chain, so new YouTube data lands about a day earlier. Every pull request to main must pass an isolated dbt build and all 40 tests before GitHub Actions deploys it, keyless through Workload Identity Federation.',
+      'Replaced fixed-time refreshes with a Pub/Sub, Eventarc, and Cloud Workflows chain, so new YouTube data lands about a day earlier. Every pull request to main must pass an isolated dbt build and all 53 tests before GitHub Actions deploys it, keyless through Workload Identity Federation.',
   },
   {
     title: 'Multi-platform performance pipeline',
@@ -56,7 +56,7 @@ const projects: Project[] = [
     <OrchestrationDiagram />
     <ul class="readout">
       <li><b>~1 day</b><span class="k">earlier YouTube data</span></li>
-      <li><b>40</b><span class="k">dbt tests on every PR</span></li>
+      <li><b>53</b><span class="k">dbt tests on every PR</span></li>
       <li><b>0</b><span class="k">stored keys</span></li>
     </ul>
     <figcaption>
@@ -68,11 +68,36 @@ const projects: Project[] = [
 
   <ProjectList projects={projects} />
 
-  <p class="training">
-    <span class="eyebrow">Training</span>
-    Team capstone, TibaMe Data Engineering Program: scraped Taiwan box-office data and built an ETL
-    pipeline with Prefect and a Tableau dashboard.
-  </p>
+  <section class="training">
+    <span class="eyebrow">Training · 2025 · TibaMe Data Engineering Program</span>
+    <h2>Taiwan box-office pipeline and dashboard</h2>
+    <p class="meta stack">Python · Selenium · Prefect · GCS · BigQuery · Tableau</p>
+    <p>
+      A five-person team capstone on what Taiwanese moviegoers watch. Prefect flows pull the weekly
+      and annual box-office reports from Taiwan's national box-office site, match each film to TMDB
+      and OMDb through their APIs, land the raw files in Cloud Storage, clean them, and load them
+      into BigQuery, where SQL builds the final tables behind a Tableau dashboard. My part was the box-office
+      source: Selenium crawlers that download the newest reports and the flows that build the film
+      list everything else is matched against.
+    </p>
+    <figure>
+      <img
+        src="/images/tibame-box-office-dashboard.png"
+        width="960"
+        height="568"
+        loading="lazy"
+        alt="Tableau dashboard: 2025 box-office ranking by film, a treemap of films by country of origin led by the US and Japan, and the weekly box-office share of Taiwanese films, which stays below about 10%."
+      />
+      <figcaption>
+        <span class="fig-no">Fig. 2</span>One page of the team's Tableau dashboard, covering
+        January to early April 2025.
+      </figcaption>
+    </figure>
+    <p class="links">
+      <a href="https://github.com/Astor77/TIR104_g2_new">GitHub</a>
+      <a href="https://sites.google.com/view/tibametir10402/%E9%9B%BB%E5%BD%B1%E5%84%80%E8%A1%A8%E6%9D%BF">Live dashboard</a>
+    </p>
+  </section>
 </Base>
 
 <style>
@@ -86,13 +111,29 @@ const projects: Project[] = [
   }
   .training {
     border-top: 1px solid var(--grid);
-    color: var(--muted);
-    font-size: 0.95rem;
-    max-width: var(--measure);
+    margin-top: 1rem;
     padding-top: 1.2rem;
   }
   .training .eyebrow {
     display: block;
     margin-bottom: 0.3rem;
+  }
+  .training h2 {
+    margin: 0 0 0.2rem;
+  }
+  .training > p {
+    max-width: var(--measure);
+  }
+  .training figure {
+    margin: 1.5rem 0 0.5rem;
+  }
+  .training img {
+    border: 1px solid var(--grid);
+    display: block;
+    height: auto;
+    max-width: 100%;
+  }
+  .training .links a {
+    margin-right: 1.2rem;
   }
 </style>

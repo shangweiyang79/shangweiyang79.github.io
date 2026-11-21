@@ -31,7 +31,7 @@ import Sidenote from '../../components/Sidenote.astro';
         <span class="fig-no">Fig. 1</span>Extract and load stay outside dbt, in scheduled Python
         jobs and an event-driven Cloud Workflow; the raw BigQuery tables are the contract between
         the two sides. Dashboards read compatibility views, while the assistant, forecasts, and
-        biweekly report share the certified definitions.
+        biweekly report share the same definitions.
       </figcaption>
     </figure>
 
@@ -40,21 +40,23 @@ import Sidenote from '../../components/Sidenote.astro';
       Two reports gave different September views for the same account, and for one unit the gap was
       about 2×. Neither was wrong. One summed the views that happened in September; the other summed
       the lifetime views of videos published in September. I modeled them as separate fact tables
-      with different metric names, wrote down which question each one answers, and certified daily
-      traffic as the KPI.<Sidenote id="grains">
+      with different metric names and wrote down which question each one answers. Daily traffic was
+      already the KPI; now every report reads it from the same table.<Sidenote id="grains">
         "How are we doing" goes to daily traffic, "which videos" to video level, and "why did it
         change" to both, clearly labeled. The AI assistant gets the same rule, and eval questions
         check that it picks the right grain.
       </Sidenote>
     </p>
 
-    <h2>Never sum a snapshot table</h2>
+    <h2>Compare each reel with itself</h2>
     <p>
-      Instagram stores one cumulative snapshot per reel per day, so a plain <code>SUM</code>
-      inflated views 100× or more. The legacy daily report took today's account total minus
-      yesterday's, which went negative whenever the API dropped reels from its response. Now each
-      reel is compared with its own previous snapshot, and cumulative values take a running max so a
-      missing reading can't create a negative. A test fails if a negative day ever comes back.
+      The legacy Instagram daily report took today's account-level cumulative total minus
+      yesterday's. Whenever the API skipped some reels or a reel was deleted, the total dropped and
+      the day went negative; one month's watch time came out as a six-figure negative. Instagram's
+      API turned out to return daily views directly, so views now come from it. Watch time has no
+      daily field, so each reel is compared with its own previous snapshot, and cumulative values
+      take a running max so a missing reading can't create a negative. A test fails if a negative
+      day ever comes back.
     </p>
 
     <h2>A definition change is not growth</h2>
@@ -102,14 +104,33 @@ import Sidenote from '../../components/Sidenote.astro';
       </figcaption>
     </figure>
 
+    <h2 id="since-launch">After launch: alerts worth answering</h2>
+    <p>
+      A check that cries wolf gets ignored. The YouTube freshness rule once fired seven false alarms
+      over one weekend because YouTube delivered late. I replayed five months of load history: the
+      newest report day can trail by almost six days, so the thresholds now come from that measured
+      lag. A separate test checks whether our own refresh chain has fallen behind what YouTube already
+      delivered. That splits "our pipeline is broken", which needs action, from "YouTube is late",
+      which fixes itself, and one problem now sends one alert.
+    </p>
+    <p>
+      Whether a video was a YouTube Short used to reach the warehouse once a month, through a CSV
+      built by hand, so the current month's Shorts numbers always ran low. A weekly Cloud Run job now
+      pulls the list from the YouTube APIs. Before the switch, October's 70 Shorts matched the old
+      list exactly, and titles, tags, and descriptions matched on 491 of 491 rows.<Sidenote id="fb">
+        The same weeks added a frozen 2024–2025 Facebook history to the video-level layer, and a
+        paused collection now reads as missing data rather than zero views.
+      </Sidenote>
+    </p>
+
     <h2>What keeps it honest now</h2>
     <table>
       <thead>
         <tr><th>Layer</th><th>What runs</th></tr>
       </thead>
       <tbody>
-        <tr><td>Tests</td><td>40 dbt tests: 30 generic and 10 singular, such as "the fact table equals an independent sum of the raw sources"</td></tr>
-        <tr><td>Freshness</td><td>Thresholds tuned to how each source group actually loads</td></tr>
+        <tr><td>Tests</td><td>53 dbt tests: 41 generic and 12 singular, such as "the fact table equals an independent sum of the raw sources"</td></tr>
+        <tr><td>Freshness</td><td>Thresholds set from measured load latency for each source, so a late YouTube delivery doesn't raise a false alarm</td></tr>
         <tr><td>CI</td><td>Changes to <code>main</code> need a pull request, which can merge only after the whole project builds in an isolated dataset and every test passes</td></tr>
         <tr><td>CD</td><td>Merging deploys dbt, the stored procedures, the Workflow, and the daily-checks image with no manual step</td></tr>
         <tr><td>Access</td><td>Keyless through Workload Identity Federation, with a least-privilege service account per job; only <code>main</code> can deploy</td></tr>
